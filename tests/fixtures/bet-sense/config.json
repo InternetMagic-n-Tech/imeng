@@ -1,0 +1,186 @@
+{
+  "model_id": "bet-sense",
+  "invocation": "always",
+  "judge_instance": {
+    "gpu": true
+  },
+  "actor_template": {
+    "name": "",
+    "score": 0,
+    "statuses": [],
+    "history": [],
+    "description": "",
+    "outfit": "",
+    "age": null,
+    "role": "contestant",
+    "relationship": "single",
+    "chips": 0,
+    "status": "in",
+    "hole": [],
+    "pot": 0,
+    "board": [],
+    "reserve": [],
+    "dealt": []
+  },
+  "initial_state": {
+    "game": {
+      "phase": "registration",
+      "region": "quebec",
+      "season": "winter",
+      "place": "outdoors",
+      "variant": "holdem",
+      "big_blind": 10,
+      "small_blind": 5,
+      "ante": 0,
+      "button": 0
+    },
+    "actors": {
+      "user": {
+        "name": "Bea",
+        "score": 0,
+        "statuses": [],
+        "history": [],
+        "controlled_by": "user",
+        "role": "contestant",
+        "description": "",
+        "outfit": "",
+        "age": 30,
+        "relationship": "single",
+        "chips": 100,
+        "status": "in",
+        "hole": []
+      },
+      "npc_bo": {
+        "name": "Bo",
+        "score": 0,
+        "statuses": [],
+        "history": [],
+        "controlled_by": "npc",
+        "role": "contestant",
+        "relationship": "single",
+        "age": 30
+      },
+      "table": {
+        "name": "Table",
+        "pot": 0,
+        "board": [],
+        "reserve": [],
+        "dealt": [],
+        "controlled_by": "npc"
+      },
+      "bo": {
+        "name": "Bo",
+        "chips": 100,
+        "status": "in",
+        "hole": [],
+        "controlled_by": "npc"
+      },
+      "cy": {
+        "name": "Cy",
+        "chips": 100,
+        "status": "sitting out",
+        "hole": [],
+        "controlled_by": "npc"
+      }
+    }
+  },
+  "writable_fields": [
+    "name",
+    "chips",
+    "status",
+    "hole",
+    "pot",
+    "board",
+    "reserve",
+    "dealt",
+    "bet",
+    "credit"
+  ],
+  "role_field": "role",
+  "phases": {
+    "start": "registration",
+    "registration": {
+      "next": [
+        "preflop"
+      ]
+    },
+    "preflop": {
+      "next": [
+        "flop",
+        "showdown"
+      ]
+    },
+    "flop": {
+      "next": [
+        "turn"
+      ]
+    },
+    "turn": {
+      "next": [
+        "river"
+      ]
+    },
+    "river": {
+      "next": [
+        "showdown"
+      ]
+    },
+    "showdown": {
+      "next": [
+        "between"
+      ]
+    },
+    "between": {
+      "next": [
+        "preflop"
+      ]
+    }
+  },
+  "deal": "server",
+  "betting": "server",
+  "derive": {
+    "imeng.stakes": {
+      "from": "imeng.big_blind",
+      "map": {
+        "10": "standard",
+        "20": 2
+      },
+      "default": "other"
+    }
+  },
+  "tips": {
+    "amount": "imeng.big_blind",
+    "after_hands": 2,
+    "npc_chance": 0.5
+  },
+  "limits": {
+    "imeng.big_blind": {
+      "min": 2,
+      "max": 50
+    },
+    "imeng.ante": {
+      "min": 0,
+      "max": 5,
+      "max_step": 3
+    }
+  },
+  "blinds": {
+    "steps": [
+      1,
+      2,
+      3
+    ],
+    "every": 3
+  },
+  "audit": {
+    "shows": [
+      "draws"
+    ]
+  },
+  "sense": {
+    "margin": 0.15,
+    "window": 6,
+    "samples": 200,
+    "bluff_below": 0.3
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "model_id": "validate",
+  "invocation": "always",
+  "judge_instance": {
+    "gpu": true
+  },
+  "actor_template": {
+    "name": "",
+    "score": 0,
+    "statuses": [],
+    "history": []
+  },
+  "initial_state": {
+    "game": {
+      "phase": "playing"
+    },
+    "actors": {
+      "user": {
+        "name": "Bea",
+        "score": 0,
+        "statuses": [],
+        "history": [],
+        "controlled_by": "user"
+      },
+      "npc_bo": {
+        "name": "Bo",
+        "score": 0,
+        "statuses": [],
+        "history": [],
+        "controlled_by": "npc"
+      }
+    }
+  },
+  "writable_fields": [
+    "name",
+    "score",
+    "statuses",
+    "history"
+  ],
+  "validate": "validate.mjs"
+}

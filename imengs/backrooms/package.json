@@ -1,0 +1,12 @@
+{
+  "name": "backrooms",
+  "version": "0.0.1",
+  "proxy_version": "1.3.0",
+  "private": true,
+  "description": "A liminal-space text adventure.",
+  "models": {},
+  "scripts": {
+    "how-to-test": "node ../../scripts/driver.mjs how-to-test .",
+    "build:prompts": "node ../../scripts/driver.mjs build ."
+  }
+}

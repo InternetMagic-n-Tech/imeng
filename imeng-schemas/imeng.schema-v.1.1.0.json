@@ -1,0 +1,526 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "description": "Path or URL of imeng.schema.json (editor help only).",
+      "type": "string"
+    },
+    "schema_version": {
+      "description": "Version of this file's format. Missing means 1.",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "model_id": {
+      "description": "Name shown in Open WebUI's model list.",
+      "type": "string"
+    },
+    "initial_state": {
+      "type": "object",
+      "properties": {
+        "game": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {}
+        },
+        "actors": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {}
+          }
+        }
+      },
+      "additionalProperties": {}
+    },
+    "actor_template": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {}
+    },
+    "history_limit": {
+      "type": "number"
+    },
+    "events_limit": {
+      "type": "number"
+    },
+    "state_rules": {
+      "type": "string"
+    },
+    "limits": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "min": {
+            "type": "number"
+          },
+          "max": {
+            "type": "number"
+          },
+          "max_step": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "exit_when": {
+      "description": "Auto-exit an actor when the condition holds: a comparison on one field, or an AND/OR/NOT tree with aggregates (avg/min/max/sum over actors still in).",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/__schema0"
+      }
+    },
+    "exit_group_when": {
+      "description": "End the game for everyone when the condition holds: like exit_when, but a plain comparison needs `share` of the actors still in.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/__schema0"
+      }
+    },
+    "allowed_values": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "array",
+        "items": {}
+      }
+    },
+    "sticky_fields": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 9007199254740991
+      }
+    },
+    "unique_fields": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "decrease_locks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "while": {
+            "description": "Condition on another field; leave out to lock the field for good (it can never go down).",
+            "type": "object",
+            "properties": {
+              "field": {
+                "type": "string"
+              },
+              "gt": {
+                "type": "number"
+              },
+              "gte": {
+                "type": "number"
+              },
+              "lt": {
+                "type": "number"
+              },
+              "lte": {
+                "type": "number"
+              },
+              "eq": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "field"
+            ],
+            "additionalProperties": false
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "field"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "early_sync": {
+      "description": "Record what the player's message states while the narrator is still writing (one more extractor call per turn). Default false.",
+      "type": "boolean"
+    },
+    "reasoning": {
+      "type": "string",
+      "enum": [
+        "hide",
+        "show",
+        "off"
+      ]
+    },
+    "hide_state_echo": {
+      "type": "boolean"
+    },
+    "state_notes": {
+      "type": "boolean"
+    },
+    "field_words": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "items": false,
+          "minItems": 2,
+          "maxItems": 2
+        }
+      }
+    },
+    "wrap_up": {
+      "type": "object",
+      "properties": {
+        "at_tokens": {
+          "type": "number"
+        },
+        "at_turn": {
+          "type": "number"
+        },
+        "soon_turns": {
+          "type": "number"
+        },
+        "soon_text": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "after_text": {
+          "type": "string"
+        },
+        "over_reply": {
+          "type": "string"
+        },
+        "on_exit": {
+          "type": "string",
+          "enum": [
+            "user",
+            "all"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "alias_fields": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "tail_notices": {
+      "type": "boolean"
+    },
+    "enforce_rules": {
+      "type": "boolean"
+    },
+    "rule_audit_with": {
+      "type": "string",
+      "enum": [
+        "judge",
+        "main"
+      ]
+    },
+    "compaction": {
+      "type": "object",
+      "properties": {
+        "at_tokens": {
+          "type": "number"
+        },
+        "keep_turns": {
+          "type": "number"
+        },
+        "max_chars": {
+          "type": "number"
+        },
+        "verify": {
+          "type": "string",
+          "enum": [
+            "judge",
+            "fields"
+          ]
+        },
+        "verify_fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "at_tokens"
+      ],
+      "additionalProperties": false
+    },
+    "session_rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "locked": {
+            "type": "boolean"
+          },
+          "lift_hint": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "text"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "dice": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "type": "number"
+          }
+        }
+      ]
+    },
+    "user_id": {
+      "type": "string"
+    },
+    "npc_prefix": {
+      "type": "string"
+    },
+    "writable_fields": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "trigger_pattern": {
+      "type": "string"
+    },
+    "placeholder_patterns": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "prompts": {
+      "type": "object",
+      "properties": {
+        "extractor": {
+          "type": "string"
+        },
+        "setup": {
+          "type": "string"
+        },
+        "rule_judge": {
+          "type": "string"
+        },
+        "invocation": {
+          "type": "string"
+        },
+        "compactor": {
+          "type": "string"
+        },
+        "compaction_judge": {
+          "type": "string"
+        },
+        "compaction_extract": {
+          "type": "string"
+        },
+        "rule_audit": {
+          "type": "string"
+        },
+        "rule_confirm": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "invocation": {
+      "type": "string",
+      "enum": [
+        "judge",
+        "always"
+      ]
+    },
+    "setup_turns": {
+      "type": "number"
+    },
+    "setup_hint": {
+      "type": "string"
+    },
+    "judge_model": {
+      "type": "string"
+    },
+    "judge_confirmations": {
+      "type": "number"
+    },
+    "judge_instance": {
+      "type": "object",
+      "properties": {
+        "host": {
+          "type": "string"
+        },
+        "port": {
+          "type": "number"
+        },
+        "num_ctx": {
+          "type": "number"
+        },
+        "gpu": {
+          "type": "boolean"
+        },
+        "models_dir": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "judge_num_ctx": {
+      "type": "number"
+    },
+    "judge_actor_fields": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "judge_history_items": {
+      "type": "number"
+    },
+    "judge_events": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "__schema0": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "logic": {
+              "type": "string",
+              "enum": [
+                "AND",
+                "OR",
+                "NOT"
+              ]
+            },
+            "conditions": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/__schema0"
+              }
+            },
+            "reason": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "logic",
+            "conditions"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "field": {
+              "type": "string",
+              "description": "Actor field; `game.<field>` reads a number from the shared game state."
+            },
+            "aggregate": {
+              "description": "Compare the average / minimum / maximum / sum of the field over the actors still in, instead of one actor.",
+              "type": "string",
+              "enum": [
+                "avg",
+                "min",
+                "max",
+                "sum"
+              ]
+            },
+            "share": {
+              "description": "exit_group_when only, without `aggregate`: fraction (0-1, default 1) of the actors still in that must meet the comparison.",
+              "type": "number"
+            },
+            "lt": {
+              "type": "number"
+            },
+            "lte": {
+              "type": "number"
+            },
+            "gt": {
+              "type": "number"
+            },
+            "gte": {
+              "type": "number"
+            },
+            "eq": {
+              "type": "number"
+            },
+            "reason": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "field"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "title": "config.json",
+  "description": "Settings of one game (schema_version 1)."
+}

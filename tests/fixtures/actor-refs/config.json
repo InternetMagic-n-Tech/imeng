@@ -1,0 +1,24 @@
+{
+  "actor_ref_fields": [
+    "game.targeter",
+    "game.target",
+    "rival",
+    "game.turn",
+    "game.a.b",
+    "controlled_by",
+    "game.constructor",
+    ""
+  ],
+  "initial_state": {
+    "game": {
+      "targeter": null,
+      "target": null
+    },
+    "actors": {
+      "user": {
+        "name": "you",
+        "rival": null
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "actor_template": { "name": "", "warmth": 10, "stain": 0, "statuses": [], "history": [] },
+  "initial_state": { "game": { "round": 0 }, "actors": { "user": { "name": "Joey", "warmth": 10, "stain": 0, "statuses": [], "history": [] } } },
+  "limits": { "warmth": { "min": 0, "max": 10 }, "stain": { "min": 0, "max": 10 } },
+  "exit_when": [
+    { "logic": "OR", "conditions": [{ "field": "warmth", "lte": 0 }, { "logic": "AND", "conditions": [{ "field": "stain", "gt": 8 }, { "field": "game.round", "gte": 3 }] }], "reason": "out" }
+  ],
+  "exit_group_when": [
+    { "logic": "AND", "conditions": [{ "aggregate": "avg", "field": "stain", "gte": 6 }, { "aggregate": "max", "field": "warmth", "lte": 4 }], "reason": "dual key" },
+    { "logic": "NOT", "conditions": [{ "aggregate": "min", "field": "warmth", "gt": 0 }], "reason": "someone at zero" }
+  ]
+}

@@ -1,0 +1,269 @@
+# The game proxy + Redis (response log / traceability) + Redis Commander (web UI).
+# Compose reads ./.env automatically for the ${VARS} below.
+# Restart policy: PROXY_RESTART defaults to "no" because compose 2.3.x never returns from a foreground `up` after Ctrl+C when a
+# service has a restart policy. For `up -d` set PROXY_RESTART=unless-stopped.
+# Non-default ports: proxy 3008 (imeng services 3002, 3003, 3006), Redis 16379, Commander 18081, Postgres 15432, RustFS 19000 (API) and 19001 (console), all bound to localhost by default.
+# Data lives under ./docker/volumes/ (pgsql, minio: the folder keeps its old name). Set POSTGRES_PASSWORD, REDIS_PASSWORD, MINIO_ROOT_PASSWORD and COMMANDER_PASSWORD in .env: `npm run env:init` writes one with random secrets (it never overwrites).
+# One service per shipped imeng, off by default: `docker compose --profile lighthouse up -d` (profiles: dungeon, lighthouse, backrooms).
+# Each has its own port (PORT_<GAME> overrides: dungeon 3002, lighthouse 3003, backrooms 3006) and save folder under ./docker/volumes/proxy/saves/<app>. The `proxy` service below still runs any one app chosen with PROXY_GAME_DIR.
+x-app: &app
+  image: imeng:latest   # built by the `proxy` service: run `docker compose build proxy` first
+  restart: "${PROXY_RESTART:-no}"
+  init: true
+  user: "${REDIS_UID:-1000}:${REDIS_GID:-1000}"
+  depends_on:
+    redis: { condition: service_healthy }
+    migrate: { condition: service_completed_successfully }
+    rustfs: { condition: service_healthy }
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+  volumes:
+    - ./docker/volumes/proxy:/data
+  read_only: true
+  tmpfs:
+    - /tmp
+  cap_drop:
+    - ALL
+  security_opt:
+    - no-new-privileges:true
+  pids_limit: 200
+  mem_limit: 512m
+  logging:
+    driver: json-file
+    options: { max-size: "10m", max-file: "3" }
+x-app-env: &app-env
+  DATABASE_URL: "postgres://${POSTGRES_USER:-proxy}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-proxy}"
+  BUCKET_ENDPOINT: "http://rustfs:9000"
+  BUCKET_NAME: "${BUCKET_NAME:-proxy-files}"
+  BUCKET_ACCESS_KEY: "${MINIO_ROOT_USER:-proxy}"
+  BUCKET_SECRET_KEY: "${MINIO_ROOT_PASSWORD}"
+  UPSTREAM: "${PROXY_UPSTREAM:-http://host.docker.internal:11434/v1}"
+  OLLAMA_MODEL: "${OLLAMA_MODEL:-gemma4:26b}"
+  REDIS_URL: "redis://:${REDIS_PASSWORD}@redis:6379"
+  JUDGE_INSTANCE: "off"
+  JUDGE_URL: "${PROXY_JUDGE_URL:-http://host.docker.internal:11435}"
+  ENABLE_DEBUG: "0"
+  PROXY_API_KEY: "${PROXY_API_KEY:-}"
+  PUBLIC_URL: "${PUBLIC_URL:-}"   # the base of the picture links (renders and seat pictures)
+  PII_SALT: "${PII_SALT:-}"   # salts the PII filter tokens; set it in the env file (npm run env:init generates one)
+services:
+  proxy:
+    build:
+      context: .
+      args:
+        NODE_VERSION: "${NODE_VERSION:-22}"   # oldest LTS line still in support; rebuild with --pull for patches
+    image: imeng:latest
+    container_name: imeng
+    restart: "${PROXY_RESTART:-no}"
+    init: true
+    user: "${REDIS_UID:-1000}:${REDIS_GID:-1000}"
+    depends_on:
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      rustfs:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: "postgres://${POSTGRES_USER:-proxy}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-proxy}"   # compose-internal address
+      BUCKET_ENDPOINT: "http://rustfs:9000"                 # compose-internal address; the proxy creates its bucket on start
+      BUCKET_NAME: "${BUCKET_NAME:-proxy-files}"
+      BUCKET_ACCESS_KEY: "${MINIO_ROOT_USER:-proxy}"
+      BUCKET_SECRET_KEY: "${MINIO_ROOT_PASSWORD}"
+      # Which game this container runs: any folder in the image (`imengs/<name>`). One game per container;
+      # saves go in a folder per game so two games never read each other's sessions.
+      IMENG_PATH: "${PROXY_GAME_DIR:-imengs/lighthouse}"
+      SAVE_DIR: "/data/saves/${PROXY_GAME_DIR:-imengs/lighthouse}"
+      UPSTREAM: "${PROXY_UPSTREAM:-http://host.docker.internal:11434/v1}"   # Ollama on the host
+      OLLAMA_MODEL: "${OLLAMA_MODEL:-gemma4:26b}"
+      REDIS_URL: "redis://:${REDIS_PASSWORD}@redis:6379"                     # compose-internal address
+      # Model serving stays on the host (Docker runs Ollama poorly). The judge is a CPU Ollama started
+      # on the host with `npm run judge`, which listens on the Docker bridge only.
+      JUDGE_INSTANCE: "off"          # the image has no `ollama` binary, so it never spawns one itself
+      JUDGE_URL: "${PROXY_JUDGE_URL:-http://host.docker.internal:11435}"
+      ENABLE_DEBUG: "0"              # /debug/state exposes every session; keep it off when public
+      # PROXY_PREFLIGHT=1 makes the proxy run the doctor's checks at startup and exit 1 if any fails (for
+      # example the host judge not running yet); `restart: "${PROXY_RESTART:-no}"` then retries until it is up.
+      PREFLIGHT: "${PROXY_PREFLIGHT:-0}"
+      PROXY_API_KEY: "${PROXY_API_KEY:-}"   # set a value to require "Authorization: Bearer <key>" on /v1
+      PUBLIC_URL: "${PUBLIC_URL:-}"         # the base of the picture links (renders and seat pictures)
+      PII_SALT: "${PII_SALT:-}"             # salts the PII filter tokens (the doctor warns when a game uses pii_filter without one)
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      # Localhost only by default. Put a TLS reverse proxy in front before binding it publicly
+      # (set PROXY_BIND=0.0.0.0 and PROXY_API_KEY together).
+      - "${PROXY_BIND:-127.0.0.1}:${PROXY_PORT:-3008}:3001"   # the generic runner (PROXY_GAME_DIR); the apps below use 3001-3007
+    volumes:
+      - ./docker/volumes/proxy:/data      # saved sessions and the fallback log
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 200
+    mem_limit: 512m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  imeng-dungeon:
+    <<: *app
+    container_name: imeng-dungeon
+    profiles: ["dungeon"]
+    environment:
+      <<: *app-env
+      IMENG_PATH: "imengs/dungeon-game"
+      SAVE_DIR: "/data/saves/dungeon"
+      PORT: "${PORT_DUNGEON:-3002}"
+    ports:
+      - "${PROXY_BIND:-127.0.0.1}:${PORT_DUNGEON:-3002}:${PORT_DUNGEON:-3002}"
+
+  imeng-lighthouse:
+    <<: *app
+    container_name: imeng-lighthouse
+    profiles: ["lighthouse"]
+    environment:
+      <<: *app-env
+      IMENG_PATH: "imengs/lighthouse"
+      SAVE_DIR: "/data/saves/lighthouse"
+      PORT: "${PORT_LIGHTHOUSE:-3003}"
+    ports:
+      - "${PROXY_BIND:-127.0.0.1}:${PORT_LIGHTHOUSE:-3003}:${PORT_LIGHTHOUSE:-3003}"
+
+  imeng-backrooms:
+    <<: *app
+    container_name: imeng-backrooms
+    profiles: ["backrooms"]
+    environment:
+      <<: *app-env
+      IMENG_PATH: "imengs/backrooms"
+      SAVE_DIR: "/data/saves/backrooms"
+      PORT: "${PORT_BACKROOMS:-3006}"
+    ports:
+      - "${PROXY_BIND:-127.0.0.1}:${PORT_BACKROOMS:-3006}:${PORT_BACKROOMS:-3006}"
+
+  # Optional tracing UI, off unless asked for: `docker compose --profile mlflow up mlflow`. See docs/MLFLOW.md.
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:latest   # pin a version once you pick one
+    container_name: imeng-mlflow
+    profiles: ["mlflow"]
+    restart: "${PROXY_RESTART:-no}"
+    user: "${REDIS_UID:-1000}:${REDIS_GID:-1000}"
+    command: ["mlflow", "server", "--host", "0.0.0.0", "--port", "5000", "--backend-store-uri", "sqlite:////mlflow/mlflow.db", "--default-artifact-root", "/mlflow/artifacts"]
+    volumes:
+      - ./docker/volumes/mlflow:/mlflow
+    ports:
+      - "${PROXY_BIND:-127.0.0.1}:${MLFLOW_PORT:-15000}:5000"
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: imeng-postgres
+    restart: "${PROXY_RESTART:-no}"
+    user: "${REDIS_UID:-1000}:${REDIS_GID:-1000}"   # so the bind mount stays writable by you
+    environment:
+      POSTGRES_USER: "${POSTGRES_USER:-proxy}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      POSTGRES_DB: "${POSTGRES_DB:-proxy}"
+    volumes:
+      - ./docker/volumes/pgsql:/var/lib/postgresql/data
+    tmpfs:
+      - /var/run/postgresql
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-15432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  rustfs:
+    # S3-compatible file bucket: pictures the proxy made and files that were uploaded or sent. Data in ./docker/volumes/minio.
+    # RustFS replaces MinIO (its Docker Hub image is gone). The MINIO_* env names and docker/volumes/minio keep their old names so an existing .env and data folder still work.
+    image: rustfs/rustfs:1.0.0-alpha.83
+    container_name: imeng-rustfs
+    restart: "${PROXY_RESTART:-no}"
+    user: "${REDIS_UID:-1000}:${REDIS_GID:-1000}"   # so the bind mount stays writable by you
+    environment:
+      RUSTFS_ADDRESS: ":9000"
+      RUSTFS_ACCESS_KEY: "${MINIO_ROOT_USER:-proxy}"
+      RUSTFS_SECRET_KEY: "${MINIO_ROOT_PASSWORD}"
+      RUSTFS_CONSOLE_ENABLE: "true"
+    volumes:
+      - ./docker/volumes/minio:/data
+    ports:
+      - "127.0.0.1:${MINIO_PORT:-19000}:9000"            # S3 API
+      - "127.0.0.1:${MINIO_CONSOLE_PORT:-19001}:9001"    # web console
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://127.0.0.1:9000/health | grep -q '\"status\":\"ok\"'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  migrate:
+    # One-shot: applies the engine's migrations (migrations/) and every imeng's own (imengs/*/migrations) and writes the version stamp, then the proxy starts. Run it again after every upgrade.
+    image: imeng:latest   # the proxy's image (built by the proxy service)
+    container_name: imeng-migrate
+    restart: "no"
+    command: ["node", "dist/db-migrate.js", "--all"]   # the engine's migrations, then every imeng's own (imengs/*/migrations)
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: "postgres://${POSTGRES_USER:-proxy}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-proxy}"
+      IMENG_PATH: "${PROXY_GAME_DIR:-imengs/lighthouse}"
+
+  cleanup:
+    # Removes expired rows (and their bucket files) every CLEANUP_EVERY_MS (default one hour).
+    image: imeng:latest
+    container_name: imeng-cleanup
+    restart: "${PROXY_RESTART:-no}"
+    command: ["node", "dist/db-cleanup.js"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL: "postgres://${POSTGRES_USER:-proxy}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-proxy}"
+      CLEANUP_EVERY_MS: "${CLEANUP_EVERY_MS:-3600000}"
+      # so expired attachments are deleted from the bucket as well as the database (the bucket is only reached when these are set)
+      BUCKET_ENDPOINT: "http://rustfs:9000"
+      BUCKET_NAME: "${BUCKET_NAME:-proxy-files}"
+      BUCKET_ACCESS_KEY: "${MINIO_ROOT_USER:-proxy}"
+      BUCKET_SECRET_KEY: "${MINIO_ROOT_PASSWORD}"
+
+  redis:
+    image: redis:7-alpine
+    container_name: imeng-redis
+    restart: "${PROXY_RESTART:-no}"
+    user: "${REDIS_UID:-1000}:${REDIS_GID:-1000}"   # so the bind mount stays writable by you
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}", "--appendonly", "yes"]
+    ports:
+      - "127.0.0.1:${REDIS_PORT:-16379}:6379"
+    volumes:
+      - ./docker/volumes/redis:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$$REDIS_PASSWORD\" ping 2>/dev/null | grep -q PONG"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    environment:
+      REDIS_PASSWORD: "${REDIS_PASSWORD}"
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: imeng-redis-commander
+    restart: "${PROXY_RESTART:-no}"
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      REDIS_HOSTS: "local:redis:6379:0:${REDIS_PASSWORD}"
+      HTTP_USER: "${COMMANDER_USER:-admin}"
+      HTTP_PASSWORD: "${COMMANDER_PASSWORD}"
+    ports:
+      - "127.0.0.1:${REDIS_COMMANDER_PORT:-18081}:8081"

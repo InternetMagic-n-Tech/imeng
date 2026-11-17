@@ -1,0 +1,72 @@
+{
+  "model_id": "ruling",
+  "invocation": "always",
+  "judge_instance": {
+    "gpu": true
+  },
+  "actor_template": {
+    "name": "",
+    "score": 0,
+    "statuses": [],
+    "history": [],
+    "description": "",
+    "outfit": "",
+    "age": null,
+    "role": "contestant",
+    "relationship": "single",
+    "class": ""
+  },
+  "initial_state": {
+    "game": {
+      "phase": "playing"
+    },
+    "actors": {
+      "user": {
+        "name": "Bea",
+        "score": 0,
+        "statuses": [],
+        "history": [],
+        "controlled_by": "user",
+        "role": "contestant",
+        "description": "",
+        "outfit": "",
+        "age": 30,
+        "relationship": "single",
+        "class": "wizard"
+      },
+      "npc_bo": {
+        "name": "Bo",
+        "score": 0,
+        "statuses": [],
+        "history": [],
+        "controlled_by": "npc",
+        "role": "contestant",
+        "relationship": "single",
+        "age": 30
+      }
+    }
+  },
+  "writable_fields": [
+    "name",
+    "score",
+    "statuses",
+    "history",
+    "description",
+    "outfit",
+    "age",
+    "role",
+    "relationship",
+    "class"
+  ],
+  "role_field": "role",
+  "ruling": {
+    "phase": "playing",
+    "table": {
+      "wizard": [
+        "fireball",
+        "magic missile"
+      ],
+      "fighter": []
+    }
+  }
+}

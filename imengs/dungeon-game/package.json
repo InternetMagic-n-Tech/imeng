@@ -1,0 +1,17 @@
+{
+  "name": "dungeon-adventure",
+  "version": "0.0.1",
+  "proxy_version": "1.3.0",
+  "private": true,
+  "description": "A simple AD&D-style dungeon adventure (the default game).",
+  "models": {
+    "narrator": {
+      "name": "gemma4:26b",
+      "digest": "001e5dafc3c7"
+    },
+    "judge": {
+      "name": "actbro/minicpm5-2b-jev:latest",
+      "digest": "ff39205e861b"
+    }
+  }
+}

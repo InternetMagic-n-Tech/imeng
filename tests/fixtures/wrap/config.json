@@ -1,0 +1,44 @@
+{
+  "invocation": "always",
+  "judge_model": "j",
+  "limits": {
+    "warmth": {
+      "min": 0,
+      "max": 10
+    }
+  },
+  "exit_when": [
+    {
+      "field": "warmth",
+      "lte": 0,
+      "reason": "too cold"
+    }
+  ],
+  "actor_template": {
+    "name": "",
+    "warmth": 10,
+    "statuses": [],
+    "history": []
+  },
+  "initial_state": {
+    "game": {},
+    "actors": {
+      "user": {
+        "name": "Joey",
+        "warmth": 10,
+        "statuses": [],
+        "history": []
+      }
+    }
+  },
+  "judge_instance": {
+    "port": 11999,
+    "num_ctx": 4096,
+    "gpu": false,
+    "models_dir": "/tmp/models"
+  },
+  "wrap_up": {
+    "at_tokens": 700,
+    "text": "CLOSE THE SHOW NOW."
+  }
+}

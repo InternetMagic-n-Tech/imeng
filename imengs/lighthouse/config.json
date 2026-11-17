@@ -1,0 +1,222 @@
+{
+  "$schema": "../../imeng-schemas/imeng.schema-v.1.3.0.json",
+  "schema_version": 1,
+  "model_id": "lighthouse-game",
+  "description": "A quiet story about keeping a lighthouse through storms and visitors, one night at a time.",
+  "history_limit": 20,
+  "actor_template": {
+    "name": "",
+    "statuses": [],
+    "history": [],
+    "controlled_by": "npc"
+  },
+  "initial_state": {
+    "game": {
+      "location": "landing at the foot of the lighthouse"
+    },
+    "actors": {
+      "user": {
+        "name": "you",
+        "hp": 10,
+        "day": 0,
+        "depth": 0,
+        "gloom": 0,
+        "nerve": 3,
+        "nightcap": 0,
+        "banished": [],
+        "statuses": [],
+        "inventory": [],
+        "history": [],
+        "controlled_by": "user",
+        "comforts": []
+      }
+    }
+  },
+  "state_rules": "Only the narrator's statements count. actors.user.day: set to the day number the narrator states (starts 0, 1 on arrival); it rises by 1 per night slept, or by the number of days the narrator says passed in a skip. depth: 0 lamp room/gallery, 1 upper stairs, 2 keeper's quarters, 3 stores, 4 passage below, 5 cellar; set it to the deepest place reached that day. gloom 0-5: the day's weather/light the narrator gives. nerve 0-10 starts 3: rises by 1 (never more than 2 a turn) only when the narrator describes the keeper facing a spook calmly and the spook ending,; it falls by 1 when the keeper flees, freezes or begs. nightcap 0-3: set only when the player says they drank, took something or breathed fumes (1 a drink or two, 2 several drinks or something swallowed or smoked, 3 fumes or a heavy dose); reset it to 0 each new morning. When a spook is dismissed for good, push a short phrase naming it to banished. hp: the narrator's stated changes. inventory: the single personal item the keeper brought, and anything else picked up or dropped; the personal item is never replaced by a second one. Never add actors for spooks. The narrator conveys numbers only in prose, so infer them: gloom from the morning light (clear long light 0 or 1, overcast 2, grey and short 3, dark all day 4, storm-dark no daylight 5). depth: raise it whenever the keeper reaches a deeper place and keep the day's deepest (stores 3, the passage below 4, cellar 5); set it back to 0 only at a new day if they stay up top. comforts: push \"gift: <name>\" only when the player clearly says they take an offer from a supply drop (an offer left on the landing, declined, or ignored is not recorded), or \"made: <name>\" when they make something from the island's materials; remove an entry when the narrator says it has lapsed or is lost. A comfort is never the personal item and is never added unless the player took or made it. Whenever you push a new entry to comforts, ALSO add 1 to actors.user.nerve in the same turn (once per comfort, never above 10).",
+  "limits": {
+    "hp": {
+      "min": 0,
+      "max": 10,
+      "max_step": 3
+    },
+    "day": {
+      "min": 0,
+      "max": 120,
+      "max_step": 14
+    },
+    "depth": {
+      "min": 0,
+      "max": 5,
+      "max_step": 3
+    },
+    "gloom": {
+      "min": 0,
+      "max": 5
+    },
+    "nerve": {
+      "min": 0,
+      "max": 10,
+      "max_step": 2
+    },
+    "nightcap": {
+      "min": 0,
+      "max": 3
+    }
+  },
+  "decrease_locks": [
+    {
+      "field": "day",
+      "reason": "days only move forward"
+    }
+  ],
+  "exit_when": [
+    {
+      "field": "day",
+      "gte": 120,
+      "reason": "relieved by the replacement keeper"
+    },
+    {
+      "field": "hp",
+      "lte": 0,
+      "reason": "taken off the rock by the relief boat"
+    }
+  ],
+  "judge_model": "actbro/minicpm5-2b-jev:latest",
+  "judge_confirmations": 2,
+  "reasoning": "hide",
+  "session_rules": [
+    {
+      "id": "one_item",
+      "text": "The keeper has exactly one personal item, chosen at the start, which needs no supplies, fuel, batteries or repair to last 120 days, and they can never gain a second personal item. Separately, supply drops (days 30, 60, 90) may offer something with upkeep only if every dependency comes in the same crate, and the keeper decides whether to accept it. Nothing is ever forced on them.",
+      "locked": true
+    },
+    {
+      "id": "no_hints",
+      "text": "The narrator never states, hints or explains that the haunting depends on the keeper's attitude, courage, belief, doubt or confidence, and never taunts the keeper about themselves. The narrator never connects the strength of a night to drink, drugs or fumes, never warns or moralises about them, and never offers or mentions them unless the player does first.",
+      "locked": true
+    }
+  ],
+  "judge_instance": {
+    "port": 11435,
+    "num_ctx": 8192,
+    "gpu": false,
+    "models_dir": "/usr/share/ollama/.ollama/models"
+  },
+  "setup_turns": 3,
+  "writable_fields": [
+    "name",
+    "hp",
+    "day",
+    "depth",
+    "gloom",
+    "nerve",
+    "nightcap",
+    "banished",
+    "statuses",
+    "inventory",
+    "history",
+    "comforts"
+  ],
+  "dice": {
+    "d6": 10,
+    "d20": 4
+  },
+  "hide_state_echo": true,
+  "state_notes": true,
+  "tail_notices": true,
+  "field_words": {
+    "nerve": [
+      [
+        0,
+        "shaken"
+      ],
+      [
+        3,
+        "wary"
+      ],
+      [
+        6,
+        "steady"
+      ],
+      [
+        9,
+        "unshakeable"
+      ]
+    ],
+    "gloom": [
+      [
+        0,
+        "clear, long light"
+      ],
+      [
+        2,
+        "overcast"
+      ],
+      [
+        3,
+        "grey and short"
+      ],
+      [
+        4,
+        "dark all day"
+      ],
+      [
+        5,
+        "storm-dark, no daylight"
+      ]
+    ],
+    "depth": [
+      [
+        0,
+        "the lamp room and gallery"
+      ],
+      [
+        1,
+        "the upper stairs"
+      ],
+      [
+        2,
+        "the keeper's quarters"
+      ],
+      [
+        3,
+        "the stores"
+      ],
+      [
+        4,
+        "the passage below"
+      ],
+      [
+        5,
+        "the cellar"
+      ]
+    ]
+  },
+  "compaction": {
+    "at_tokens": 19000,
+    "keep_turns": 6,
+    "max_chars": 2500
+  },
+  "wrap_up": {
+    "at_tokens": 26000,
+    "text": "The story ends in this reply. Check the day in the state. If the keeper has served the full 120 days, or the story simply ran out of room, the supply boat arrives with the replacement keeper: run the handover in voice (log, keys, a short exchange, the sea in daylight) and a calm last look at the lighthouse. If the keeper is hurt before day 120, the relief boat comes early and takes them off the rock: a quiet departure, no replacement scene, no explanation. Do not start anything new.",
+    "after_text": "The story is over. If the player writes again, answer briefly in voice and say a new posting needs a new chat.",
+    "over_reply": "The boat has gone and the lighthouse is behind you. Start a new chat for another posting.",
+    "on_exit": "user"
+  },
+  "setup_hint": "Record the keeper's name and the single personal item they bring (it must need no supplies for 120 days). Nothing else.",
+  "enforce_rules": true,
+  "rule_audit_with": "main",
+  "judge_actor_fields": [
+    "name",
+    "controlled_by",
+    "statuses",
+    "inventory",
+    "history"
+  ],
+  "terms": {
+    "file": "terms.md",
+    "notice": "The terms are in your private messages.",
+    "remember_days": 365
+  }
+}

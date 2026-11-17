@@ -1,0 +1,11 @@
+{
+  "model_id": "cases",
+  "invocation": "always",
+  "judge_instance": { "gpu": true },
+  "actor_template": { "name": "", "chips": 0, "statuses": [], "history": [] },
+  "initial_state": {
+    "game": { "variant": "holdem" },
+    "actors": { "user": { "name": "Gus", "chips": 100, "statuses": [], "history": [], "controlled_by": "user" } }
+  },
+  "writable_fields": ["name", "chips", "statuses", "history"]
+}

@@ -1,0 +1,75 @@
+{
+  "model_id": "rehydrate-table",
+  "invocation": "always",
+  "actor_template": {
+    "name": "",
+    "hp": null,
+    "statuses": [],
+    "inventory": [],
+    "history": []
+  },
+  "initial_state": {
+    "game": {
+      "location": "start",
+      "minutes": 0
+    },
+    "actors": {
+      "user": {
+        "name": "you",
+        "hp": 10,
+        "statuses": [],
+        "inventory": [],
+        "history": []
+      }
+    }
+  },
+  "state_rules": "Track hp.",
+  "limits": {
+    "hp": {
+      "min": 0,
+      "max": 10
+    }
+  },
+  "judge_model": "judge-model",
+  "setup_turns": 0,
+  "multiplayer": {
+    "enabled": true,
+    "min_players": 2,
+    "clock": {
+      "field": "game.minutes",
+      "unit": "minute"
+    }
+  },
+  "rehydrate": {
+    "paths": [
+      "actors.*.hp"
+    ],
+    "notes": {
+      "actors.*.hp": "{name}'s hp was set to {value} (was {old})."
+    }
+  },
+  "eligibility": {
+    "version": 1,
+    "flags": [
+      "opted_in",
+      "busted"
+    ],
+    "join": {
+      "require": [
+        "opted_in"
+      ],
+      "block": [
+        "busted"
+      ]
+    },
+    "opt_in": "opted_in",
+    "rules": [
+      {
+        "flag": "busted",
+        "path": "actors.*.hp",
+        "op": "<=",
+        "value": 0
+      }
+    ]
+  }
+}

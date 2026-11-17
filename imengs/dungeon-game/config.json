@@ -1,0 +1,402 @@
+{
+  "$schema": "../../imeng-schemas/imeng.schema-v.1.3.0.json",
+  "schema_version": 1,
+  "icon": "dungeon-game.jpg",
+  "model_id": "dungeon-adventure",
+  "description": "A multiplayer text dungeon for one to six players: explore, fight, loot, talk and rest, with the server running the loop, the dice and the dead.",
+  "history_limit": 20,
+  "enforce_rules": true,
+  "rule_audit_with": "main",
+  "invocation": "always",
+  "actor_template": {
+    "name": "",
+    "class": "",
+    "race": "",
+    "level": 1,
+    "hp": null,
+    "max_hp": null,
+    "ac": null,
+    "gold": 0,
+    "statuses": [],
+    "inventory": [],
+    "history": [],
+    "controlled_by": "npc"
+  },
+  "initial_state": {
+    "game": {
+      "location": "party creation",
+      "phase": "setup",
+      "conversation": false
+    },
+    "actors": {
+      "user": {
+        "name": "you",
+        "class": "",
+        "race": "",
+        "level": 1,
+        "hp": null,
+        "max_hp": null,
+        "ac": null,
+        "gold": 0,
+        "statuses": [],
+        "inventory": [],
+        "history": [],
+        "controlled_by": "user"
+      }
+    }
+  },
+  "state_rules": "The user is always actors.user; never add an actor for them. When a character's class, hit points or armor class are established, set class, race, level, hp, max_hp and ac as numbers where numeric. Damage and healing change hp with inc (negative for damage); never above max_hp. Coins change gold with inc. Gear goes in inventory; spells used go in statuses (e.g. 'Sleep used') until the party rests, then remove them. Set imeng.location to the current area, and imeng.phase to 'setup', 'explore', 'combat', 'post_combat', 'interact', 'sleep', 'magic' or 'ended'. Record every monster that is fought as an actor only while it is alive and in the fight (controlled_by npc, with hp); exit it when slain. Each real player has their own actor (the id in their line of the player message); set imeng.conversation to true while the party talks with someone and false when it ends.",
+  "writable_fields": [
+    "class",
+    "race",
+    "level",
+    "hp",
+    "max_hp",
+    "ac",
+    "gold",
+    "inventory",
+    "statuses",
+    "imeng.location",
+    "imeng.phase",
+    "imeng.conversation"
+  ],
+  "limits": {
+    "hp": {
+      "min": 0
+    },
+    "gold": {
+      "min": 0
+    },
+    "level": {
+      "min": 1,
+      "max_step": 1
+    }
+  },
+  "exit_when": [
+    {
+      "field": "hp",
+      "lte": 0,
+      "reason": "died"
+    }
+  ],
+  "judge_model": "actbro/minicpm5-2b-jev:latest",
+  "judge_confirmations": 2,
+  "judge_actor_fields": [
+    "name",
+    "class",
+    "race",
+    "level",
+    "hp",
+    "max_hp",
+    "ac",
+    "gold",
+    "statuses",
+    "inventory",
+    "history",
+    "controlled_by"
+  ],
+  "reasoning": "hide",
+  "session_rules": [],
+  "judge_instance": {
+    "port": 11435,
+    "num_ctx": 8192,
+    "gpu": false,
+    "models_dir": "/usr/share/ollama/.ollama/models"
+  },
+  "setup_turns": 3,
+  "dice": true,
+  "setup_hint": "Record class, race and appearance of the user's character and of each party member, the number of companions, and any house preferences (tone, difficulty). Companions are NPCs.",
+  "validate": "hooks/validate.mjs",
+  "allowed_values": {
+    "imeng.phase": [
+      "setup",
+      "explore",
+      "combat",
+      "post_combat",
+      "interact",
+      "assess_world",
+      "sleep",
+      "magic",
+      "ended"
+    ]
+  },
+  "multiplayer": {
+    "enabled": true,
+    "turns": "ready",
+    "min_players": 2,
+    "max_players": 6,
+    "private": {
+      "reply": "narrator",
+      "narrator_sees": true,
+      "max_words": 50
+    },
+    "silenced_when": {
+      "field": "hp",
+      "lte": 0
+    },
+    "silenced_reply": "You are dead. The living cannot hear you; you can still write to the Narrator in your private chat."
+  },
+  "phases": {
+    "start": "setup",
+    "texts": {
+      "here": "The delve is in the {phase} phase.",
+      "missing": "It cannot move on to {next} until this is done: {what}.",
+      "blocked": "the delve cannot move to {to} yet"
+    },
+    "setup": {
+      "note": "Set the table: each player's name, class, race and look, then begin.",
+      "require": [
+        {
+          "field": "class",
+          "present": true,
+          "reason": "every character needs a class"
+        }
+      ],
+      "next": [
+        "explore",
+        "combat"
+      ]
+    },
+    "explore": {
+      "note": "The party explores. Describe one area or beat.",
+      "actions": {
+        "explore": {
+          "describe": "walk, look, search, listen, hide, disarm, open or carry something, or use an item",
+          "allow": [
+            "actors.*.inventory",
+            "actors.*.statuses",
+            "actors.*.hp",
+            "actors.*.gold",
+            "actors.*.level",
+            "imeng.location",
+            "imeng.conversation"
+          ]
+        }
+      },
+      "next": [
+        "combat",
+        "interact",
+        "sleep"
+      ]
+    },
+    "combat": {
+      "note": "A fight, round by round: the party acts first unless surprised. Enemy spells and items happen here too.",
+      "actions": {
+        "fight": {
+          "describe": "attack, defend, cast a spell, use an item, flee or help someone",
+          "allow": [
+            "actors.*.hp",
+            "actors.*.inventory",
+            "actors.*.statuses",
+            "actors.*.gold"
+          ]
+        }
+      },
+      "next": [
+        "post_combat"
+      ]
+    },
+    "post_combat": {
+      "note": "After the fight: loot, wounds, a breather.",
+      "actions": {
+        "recover": {
+          "describe": "loot, bind wounds, take stock, talk, or use an item",
+          "allow": [
+            "actors.*.hp",
+            "actors.*.inventory",
+            "actors.*.statuses",
+            "actors.*.gold",
+            "actors.*.level"
+          ]
+        }
+      },
+      "next": [
+        "explore"
+      ]
+    },
+    "interact": {
+      "note": "The party is talking with someone (a prisoner, a merchant, a ghost). Keep imeng.conversation true until it ends.",
+      "enter_when": {
+        "field": "imeng.conversation",
+        "is": true
+      },
+      "actions": {
+        "talk": {
+          "describe": "speak, ask, bargain, threaten, trade, or leave",
+          "allow": [
+            "actors.*.inventory",
+            "actors.*.gold",
+            "actors.*.statuses",
+            "imeng.conversation"
+          ]
+        }
+      },
+      "next": [
+        "assess_world"
+      ]
+    },
+    "assess_world": {
+      "silent": true,
+      "note": "A pass-through: the server checks whether the conversation goes on.",
+      "next": [
+        "interact",
+        "explore"
+      ]
+    },
+    "sleep": {
+      "note": "The party rests somewhere safe: HP and spells return and levels are earned.",
+      "actions": {
+        "rest": {
+          "describe": "rest, keep watch, tend wounds, or talk quietly",
+          "allow": [
+            "actors.*.hp",
+            "actors.*.max_hp",
+            "actors.*.statuses",
+            "actors.*.level"
+          ]
+        }
+      },
+      "next": [
+        "explore"
+      ]
+    },
+    "magic": {
+      "interrupt": true,
+      "note": "Magic happens outside the loop: a spell cast or an item invoked, by a player or by an enemy. Resolve it, then return to the phase it interrupted.",
+      "actions": {
+        "cast": {
+          "describe": "cast a spell or invoke a magic item",
+          "allow": [
+            "actors.*.hp",
+            "actors.*.statuses",
+            "actors.*.inventory",
+            "actors.*.level"
+          ]
+        }
+      },
+      "next": [
+        "@return"
+      ]
+    },
+    "ended": {
+      "note": "Every player is dead or the dungeon is done.",
+      "next": []
+    }
+  },
+  "off_phase": {
+    "mode": "hush",
+    "texts": [
+      "Hush, you.",
+      "Not now.",
+      "Shh. Something is listening.",
+      "Eyes on the dungeon."
+    ]
+  },
+  "deck": {
+    "phase": "magic",
+    "note": "Resolve the spell or item at this strength: below 1 it fizzles or only partly works, 1 is normal, above 1 is a strong cast. Name the card in the story.",
+    "hand": 3
+  },
+  "ruling": {
+    "phase": "magic",
+    "class_field": "class",
+    "table": {
+      "magic-user": [
+        "magic missile",
+        "sleep",
+        "shield",
+        "charm person",
+        "detect magic",
+        "light",
+        "read magic",
+        "web",
+        "fireball",
+        "lightning bolt",
+        "invisibility",
+        "knock"
+      ],
+      "wizard": [
+        "magic missile",
+        "sleep",
+        "shield",
+        "charm person",
+        "detect magic",
+        "light",
+        "read magic",
+        "web",
+        "fireball",
+        "lightning bolt",
+        "invisibility",
+        "knock"
+      ],
+      "cleric": [
+        "cure light wounds",
+        "cure disease",
+        "bless",
+        "light",
+        "protection from evil",
+        "hold person",
+        "silence",
+        "create water",
+        "remove curse",
+        "turn undead"
+      ]
+    },
+    "suits": {
+      "cure light wounds": "hearts",
+      "cure disease": "hearts",
+      "bless": "hearts",
+      "protection from evil": "hearts",
+      "create water": "hearts",
+      "remove curse": "hearts",
+      "shield": "hearts",
+      "charm person": "diamonds",
+      "detect magic": "diamonds",
+      "read magic": "diamonds",
+      "invisibility": "diamonds",
+      "light": "diamonds",
+      "web": "clubs",
+      "hold person": "clubs",
+      "silence": "clubs",
+      "knock": "clubs",
+      "fireball": "spades",
+      "lightning bolt": "spades",
+      "sleep": "spades",
+      "magic missile": "spades",
+      "turn undead": "spades"
+    },
+    "class_suits": {
+      "wizard": {
+        "aligned": [
+          "spades",
+          "diamonds"
+        ],
+        "opposed": [
+          "hearts"
+        ]
+      },
+      "magic-user": {
+        "aligned": [
+          "spades",
+          "diamonds"
+        ],
+        "opposed": [
+          "hearts"
+        ]
+      },
+      "cleric": {
+        "aligned": [
+          "hearts"
+        ],
+        "opposed": [
+          "spades"
+        ]
+      }
+    }
+  },
+  "terms": {
+    "file": "terms.md",
+    "notice": "The terms are in your private messages.",
+    "remember_days": 365
+  }
+}

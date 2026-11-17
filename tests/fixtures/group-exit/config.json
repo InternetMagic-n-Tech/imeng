@@ -1,0 +1,10 @@
+{
+  "actor_template": { "name": "", "warmth": 10, "statuses": [], "history": [] },
+  "initial_state": { "game": {}, "actors": { "user": { "name": "Joey", "warmth": 10, "statuses": [], "history": [] } } },
+  "limits": { "warmth": { "min": 0, "max": 10 } },
+  "exit_group_when": [
+    { "field": "warmth", "lte": 2, "reason": "all frozen" },
+    { "field": "warmth", "gte": 8, "share": 0.6, "reason": "most toasty" },
+    { "field": "nothing", "gte": 1 }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "model_id": "js-config-game",
+  "initial_state": {
+    "game": {},
+    "actors": {
+      "user": {
+        "name": "you",
+        "hp": 10,
+        "controlled_by": "user"
+      }
+    }
+  },
+  "limits": {
+    "hp": {
+      "min": 0,
+      "max": 10
+    }
+  }
+}

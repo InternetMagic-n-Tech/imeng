@@ -1,0 +1,52 @@
+{
+  "model_id": "mp-credit",
+  "invocation": "always",
+  "actor_template": {
+    "name": "",
+    "hp": null,
+    "statuses": [],
+    "inventory": [],
+    "history": [],
+    "chips": 100
+  },
+  "initial_state": {
+    "game": {
+      "location": "start",
+      "minutes": 0
+    },
+    "actors": {
+      "user": {
+        "name": "you",
+        "hp": 10,
+        "statuses": [],
+        "inventory": [],
+        "history": []
+      }
+    }
+  },
+  "state_rules": "Track hp.",
+  "limits": {
+    "hp": {
+      "min": 0,
+      "max": 10
+    }
+  },
+  "judge_model": "judge-model",
+  "setup_turns": 0,
+  "multiplayer": {
+    "enabled": true,
+    "min_players": 2,
+    "clock": {
+      "field": "game.minutes",
+      "unit": "minute"
+    },
+    "silenced_reply": "The living do not hear you."
+  },
+  "credit": {
+    "field": "chips",
+    "start": 200,
+    "debt_limit": 500,
+    "code_ttl": "7d",
+    "reset": { "imeng.small_blind": "start", "imeng.hands_played": 0, "imeng.blind_base": null }
+  }
+}

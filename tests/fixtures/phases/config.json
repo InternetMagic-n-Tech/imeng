@@ -1,0 +1,35 @@
+{
+  "model_id": "phases",
+  "invocation": "always",
+  "judge_instance": { "gpu": true },
+  "actor_template": { "name": "", "score": 0, "goals": [], "statuses": [], "history": [] },
+  "initial_state": {
+    "game": { "phase": "registration" },
+    "actors": {
+      "user": { "name": "Bea", "score": 0, "goals": [], "statuses": [], "history": [], "controlled_by": "user" },
+      "npc_bo": { "name": "Bo", "score": 0, "goals": [], "statuses": [], "history": [], "controlled_by": "npc" }
+    }
+  },
+  "writable_fields": ["name", "score", "goals", "statuses", "history"],
+  "allowed_values": { "game.phase": ["registration", "playing", "finale"] },
+  "calculated": {
+    "goals_done": { "count": "actors.*.goals", "where": { "done": true } },
+    "goals_total": { "sum": "goals_done" },
+    "most_done": { "max": "goals_done" },
+    "leader": { "argmax": "goals_done" },
+    "lowest_score": { "argmin": "actors.*.score", "at_least": 5 }
+  },
+  "phases": {
+    "start": "registration",
+    "registration": {
+      "note": "Ask every contestant for a goal.",
+      "require": [{ "field": "goals", "present": true, "reason": "every contestant needs a goal" }],
+      "next": "playing"
+    },
+    "playing": {
+      "exit_when": { "field": "game.calc.most_done", "gte": 2 },
+      "next": ["finale"]
+    },
+    "finale": { "enter_when": { "field": "game.calc.goals_total", "gte": 1 } }
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "model_id": "hazard",
+  "invocation": "always",
+  "judge_instance": {
+    "gpu": true
+  },
+  "actor_template": {
+    "name": "",
+    "score": 0,
+    "statuses": [],
+    "history": [],
+    "description": "",
+    "outfit": "",
+    "age": null,
+    "role": "contestant",
+    "relationship": "single"
+  },
+  "initial_state": {
+    "game": {
+      "phase": "playing",
+      "region": "quebec",
+      "season": "winter",
+      "place": "outdoors"
+    },
+    "actors": {
+      "user": {
+        "name": "Bea",
+        "score": 0,
+        "statuses": [],
+        "history": [],
+        "controlled_by": "user",
+        "role": "contestant",
+        "description": "",
+        "outfit": "",
+        "age": 30,
+        "relationship": "single"
+      },
+      "npc_bo": {
+        "name": "Bo",
+        "score": 0,
+        "statuses": [],
+        "history": [],
+        "controlled_by": "npc",
+        "role": "contestant",
+        "relationship": "single",
+        "age": 30
+      }
+    }
+  },
+  "writable_fields": [
+    "name",
+    "score",
+    "statuses",
+    "history",
+    "description",
+    "outfit",
+    "age",
+    "role",
+    "relationship"
+  ],
+  "role_field": "role",
+  "hazards": {
+    "phase": "playing",
+    "file": "hazard.mjs",
+    "shelter": {
+      "set": {
+        "imeng.place": "the bunker sauna",
+        "imeng.ambient": "hot",
+        "imeng.shelter": "in"
+      },
+      "text": "Everyone is moved to the bunker sauna."
+    },
+    "table": [
+      {
+        "id": "blizzard",
+        "regions": [
+          "quebec"
+        ],
+        "chance": 0.1,
+        "seasons": {
+          "winter": 3,
+          "summer": 0
+        },
+        "text": "A blizzard: the show moves to the bunker sauna."
+      },
+      {
+        "id": "quake",
+        "regions": [
+          "japan"
+        ],
+        "chance": 0.01,
+        "text": "A rare earthquake."
+      }
+    ]
+  }
+}

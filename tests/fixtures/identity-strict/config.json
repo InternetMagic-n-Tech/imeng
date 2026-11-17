@@ -1,0 +1,70 @@
+{
+  "model_id": "identity-strict",
+  "invocation": "always",
+  "actor_template": {
+    "name": "",
+    "hp": null,
+    "statuses": [],
+    "inventory": [],
+    "history": []
+  },
+  "initial_state": {
+    "game": {
+      "location": "start",
+      "minutes": 0
+    },
+    "actors": {
+      "user": {
+        "name": "you",
+        "hp": 10,
+        "statuses": [],
+        "inventory": [],
+        "history": []
+      }
+    }
+  },
+  "state_rules": "Track hp.",
+  "limits": {
+    "hp": {
+      "min": 0,
+      "max": 10
+    }
+  },
+  "judge_model": "judge-model",
+  "setup_turns": 0,
+  "multiplayer": {
+    "enabled": true,
+    "min_players": 2,
+    "clock": {
+      "field": "game.minutes",
+      "unit": "minute"
+    }
+  },
+  "link": {
+    "style": "words",
+    "words": [
+      "amber",
+      "otter",
+      "cedar",
+      "delta",
+      "ember",
+      "fjord",
+      "garnet",
+      "harbor",
+      "indigo",
+      "juniper",
+      "kestrel",
+      "lantern",
+      "meadow",
+      "nectar",
+      "onyx",
+      "pebble"
+    ],
+    "ttl": "1m"
+  },
+  "freeze": {
+    "mode": "skip",
+    "catch_up": "none",
+    "text": "{who} is out of the room."
+  }
+}

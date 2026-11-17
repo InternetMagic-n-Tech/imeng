@@ -1,0 +1,482 @@
+{
+  "$schema": "../../imeng-schemas/imeng.schema-v.1.3.0.json",
+  "schema_version": 1,
+  "model_id": "backrooms-game",
+  "icon": "The_Backrooms.jpg",
+  "description": "A dread-filled wander through endless liminal rooms: find your way, meet what lives there and try to get out.",
+  "history_limit": 20,
+  "actor_template": {
+    "name": "",
+    "statuses": [],
+    "history": [],
+    "controlled_by": "npc"
+  },
+  "initial_state": {
+    "game": {
+      "location": "damp carpet, an empty humming room",
+      "phase": "setup"
+    },
+    "actors": {
+      "user": {
+        "name": "you",
+        "hp": 10,
+        "level": 0,
+        "noise": 0,
+        "fears": [],
+        "light_fear": "",
+        "accessibility": [],
+        "statuses": [],
+        "inventory": [],
+        "history": [],
+        "controlled_by": "user",
+        "avoid": [],
+        "monster": "a tall, thin, lanky figure that stays too far away to see clearly: long limbs, no face",
+        "monster_size": "taller",
+        "monster_distance": 5,
+        "injury": 0
+      },
+      "monster": {
+        "name": "Monster",
+        "description": "a tall, thin, lanky figure that stays too far away to see clearly: long limbs, no face",
+        "statuses": [],
+        "history": [],
+        "controlled_by": "npc"
+      }
+    }
+  },
+  "state_rules": "Only the narrator's statements and the player's own words count. Record in actors.user: name; fears (push one short phrase each for what the player says they are afraid of, e.g. 'a large creature', 'something too human'); light_fear (exactly one of 'dark', 'bright', 'both', 'neither', from what they say is scarier); accessibility (push one short phrase for each need the player states, e.g. 'red-green colour blind: describe by brightness and texture, never colour', 'flicker sensitive'). Never invent a fear, a preference or a need the player did not state. level 0-5: the level the narrator says the player is on (it rises by 1 when the player finds a seam and moves on; level 5 is the Seam and the exit). noise 0-5: raise it ONLY when the narrator describes loud or careless action (running, shouting, breaking things); walking slowly or carefully does not raise it; lower it by 1 each turn the player is quiet, hides, waits or rests; never more than 2 per turn. hp: the narrator's stated changes. inventory: items the player picks up or drops. The entity is the existing actor `monster`: never add another actor for it. avoid: push a short phrase for anything the player says they do not want in the game (e.g. 'no creatures', 'no flashing lights'); remove it only if the player says they are fine with it again. monster: the player's own words describing the creature that hunts them, set once at registration; if they give none leave the default. monster_size: exactly one of 'taller', 'same', 'smaller', judged from that description relative to a person ('bigger, towering, huge' = taller; 'child-sized, tiny, crawling' = smaller; otherwise the default). Also copy the monster text into actors.monster.description (set), never anything else. monster_distance 0-5: how near the monster is (5 far, 0 has you); it falls by 1 or 2 when the narrator says it gains on the player (noise, a dead end, a slip, an injury) and rises by 1 or 2 when the narrator says the player gains ground (a hiding place, a closed door, a clever use of the place); at 0 the monster has them. injury 0-3: 0 unhurt, 1 hurt, 2 badly hurt or disoriented, 3 barely able to move; raise it only when the narrator describes a fall into a pit, a bad drop or a similar injury; lower it by 1 only after the narrator says the player rested somewhere safe for a while.",
+  "writable_fields": [
+    "name",
+    "hp",
+    "level",
+    "noise",
+    "fears",
+    "light_fear",
+    "accessibility",
+    "statuses",
+    "inventory",
+    "history",
+    "avoid",
+    "monster",
+    "monster_size",
+    "monster_distance",
+    "injury",
+    "description",
+    "imeng.phase",
+    "imeng.location"
+  ],
+  "limits": {
+    "hp": {
+      "min": 0,
+      "max": 10,
+      "max_step": 3
+    },
+    "level": {
+      "min": 0,
+      "max": 5,
+      "max_step": 1
+    },
+    "noise": {
+      "min": 0,
+      "max": 5,
+      "max_step": 2
+    },
+    "monster_distance": {
+      "min": 0,
+      "max": 5,
+      "max_step": 2
+    },
+    "injury": {
+      "min": 0,
+      "max": 3,
+      "max_step": 2
+    }
+  },
+  "exit_when": [
+    {
+      "field": "level",
+      "gte": 5,
+      "reason": "found the way out"
+    },
+    {
+      "field": "monster_distance",
+      "lte": 0,
+      "reason": "caught by the monster"
+    },
+    {
+      "field": "hp",
+      "lte": 0,
+      "reason": "lost in the rooms"
+    }
+  ],
+  "dice": {
+    "d20": 6,
+    "d6": 4
+  },
+  "reasoning": "hide",
+  "hide_state_echo": true,
+  "state_notes": true,
+  "tail_notices": true,
+  "field_words": {
+    "noise": [
+      [
+        0,
+        "silent"
+      ],
+      [
+        2,
+        "quiet"
+      ],
+      [
+        3,
+        "audible"
+      ],
+      [
+        4,
+        "loud, the place is listening"
+      ],
+      [
+        5,
+        "deafening"
+      ]
+    ],
+    "level": [
+      [
+        0,
+        "the first rooms (damp carpet)"
+      ],
+      [
+        1,
+        "the parking deck"
+      ],
+      [
+        2,
+        "the pool halls"
+      ],
+      [
+        3,
+        "the hotel corridor"
+      ],
+      [
+        4,
+        "the waiting room"
+      ],
+      [
+        5,
+        "the Seam"
+      ]
+    ],
+    "monster_distance": [
+      [
+        0,
+        "on top of you"
+      ],
+      [
+        1,
+        "right behind you"
+      ],
+      [
+        2,
+        "close"
+      ],
+      [
+        3,
+        "in the same rooms"
+      ],
+      [
+        4,
+        "far, but coming"
+      ],
+      [
+        5,
+        "nowhere you can sense"
+      ]
+    ],
+    "injury": [
+      [
+        0,
+        "unhurt"
+      ],
+      [
+        1,
+        "hurt, a little slower"
+      ],
+      [
+        2,
+        "badly hurt and disoriented, slow"
+      ],
+      [
+        3,
+        "barely able to move"
+      ]
+    ]
+  },
+  "compaction": {
+    "at_tokens": 19000,
+    "keep_turns": 6,
+    "max_chars": 2500
+  },
+  "wrap_up": {
+    "at_tokens": 26000,
+    "text": "The story ends in this reply. If the player has reached the way out, they step through the seam and wake in an ordinary place, a quiet last paragraph. Otherwise the rooms close around them gently and the hum fades: a quiet, non-graphic ending. Do not start anything new.",
+    "after_text": "The story is over. If the player writes again, answer briefly in voice and say a new run needs a new chat.",
+    "over_reply": "The hum has stopped. Start a new chat to step into the rooms again.",
+    "on_exit": "user",
+    "credits_file": "CREDITS.md"
+  },
+  "session_rules": [
+    {
+      "id": "accessibility",
+      "text": "The narrator never relies on colour alone to convey anything and honours every accessibility need in the player's record (contrast, colour-blindness, flicker) from the moment it is stated, without comment.",
+      "locked": true
+    },
+    {
+      "id": "fear_hidden",
+      "text": "The narrator never names or announces the player's fear back to them, never says the entity was made from it, and never shows the entity whole. It stays implied.",
+      "locked": true
+    },
+    {
+      "id": "stop",
+      "text": "If the player says they want to stop, or doesn't want a kind of scare, the narrator honours it at once and without comment, and keeps to everything in the player's avoid list for the rest of the game.",
+      "locked": true
+    }
+  ],
+  "judge_model": "actbro/minicpm5-2b-jev:latest",
+  "judge_confirmations": 2,
+  "judge_instance": {
+    "port": 11435,
+    "num_ctx": 8192,
+    "gpu": false,
+    "models_dir": "/usr/share/ollama/.ollama/models"
+  },
+  "setup_turns": 3,
+  "setup_hint": "Record the player's name, what they are afraid of, whether dark or bright scares them more, any accessibility need (colour blindness, contrast, flicker) and how they describe their monster (and whether it is bigger, the same size or smaller than a person). Only what they say; if they describe no monster, leave the default.",
+  "enforce_rules": true,
+  "rule_audit_with": "main",
+  "judge_actor_fields": [
+    "name",
+    "controlled_by",
+    "fears",
+    "light_fear",
+    "accessibility",
+    "statuses",
+    "inventory",
+    "history",
+    "avoid",
+    "description",
+    "monster",
+    "monster_size",
+    "monster_distance",
+    "injury"
+  ],
+  "allowed_values": {
+    "monster_size": [
+      "taller",
+      "same",
+      "smaller"
+    ],
+    "imeng.phase": [
+      "setup",
+      "explore",
+      "encounter",
+      "chase",
+      "outcome",
+      "fog",
+      "ended"
+    ]
+  },
+  "images": {
+    "renderer": "a1111",
+    "prompts": {
+      "style": "liminal horror photograph, harsh fluorescent light, damp yellow-beige office rooms, grainy 35mm",
+      "positive": "unsettling, high detail",
+      "negative": "text, letters, watermark, gore, blood, cartoon"
+    },
+    "size": {
+      "width": 768,
+      "height": 768
+    },
+    "ask": {
+      "words": [
+        "picture",
+        "image",
+        "what does it look like",
+        "draw"
+      ]
+    },
+    "max_queue": 2,
+    "process": {
+      "command": "python",
+      "args": [
+        "launch.py",
+        "--api",
+        "--port",
+        "7860",
+        "--nowebui"
+      ],
+      "cwd": "${A1111_DIR}",
+      "venv": "${A1111_DIR}/venv",
+      "ready_url": "http://127.0.0.1:7860/sdapi/v1/sd-models"
+    }
+  },
+  "phases": {
+    "start": "setup",
+    "texts": {
+      "here": "The Backrooms are in the {phase} phase.",
+      "missing": "It cannot move on to {next} until this is done: {what}.",
+      "blocked": "the Backrooms cannot move to {to} yet"
+    },
+    "setup": {
+      "note": "Learn the player's fear, any access needs and what the monster looks like, then begin.",
+      "require": [
+        {
+          "field": "fears",
+          "present": true,
+          "reason": "what the player is afraid of"
+        }
+      ],
+      "next": [
+        "explore"
+      ]
+    },
+    "explore": {
+      "note": "Wandering the rooms. Build dread slowly; nothing is chasing yet.",
+      "actions": {
+        "explore": {
+          "describe": "walk, look around, search, hide, talk, think, or use an item",
+          "allow": [
+            "actors.*.noise",
+            "actors.*.inventory",
+            "actors.*.statuses",
+            "actors.*.hp",
+            "actors.*.level",
+            "actors.*.avoid",
+            "imeng.location"
+          ]
+        }
+      },
+      "next": [
+        "encounter"
+      ]
+    },
+    "encounter": {
+      "note": "The monster is near but may not have noticed. The player can hide, back away, freeze or run.",
+      "actions": {
+        "react": {
+          "describe": "hide, back away, freeze, run, talk, look, or use an item",
+          "allow": [
+            "actors.*.noise",
+            "actors.*.inventory",
+            "actors.*.statuses",
+            "actors.*.hp",
+            "actors.*.level",
+            "actors.*.avoid",
+            "imeng.location",
+            "actors.*.monster_distance",
+            "actors.*.injury",
+            "actors.*.monster",
+            "actors.*.monster_size"
+          ]
+        }
+      },
+      "next": [
+        "chase",
+        "explore"
+      ]
+    },
+    "chase": {
+      "note": "The monster is after the player. Short, fast, frightening turns.",
+      "actions": {
+        "flee": {
+          "describe": "run, hide, fight back, throw or use an item",
+          "allow": [
+            "actors.*.noise",
+            "actors.*.inventory",
+            "actors.*.statuses",
+            "actors.*.hp",
+            "actors.*.level",
+            "actors.*.avoid",
+            "imeng.location",
+            "actors.*.monster_distance",
+            "actors.*.injury",
+            "actors.*.monster",
+            "actors.*.monster_size"
+          ]
+        }
+      },
+      "next": [
+        "outcome"
+      ]
+    },
+    "outcome": {
+      "note": "Settle it: the player escaped, was injured, or died.",
+      "actions": {
+        "resolve": {
+          "describe": "anything that resolves the chase",
+          "allow": [
+            "actors.*.noise",
+            "actors.*.inventory",
+            "actors.*.statuses",
+            "actors.*.hp",
+            "actors.*.level",
+            "actors.*.avoid",
+            "imeng.location",
+            "actors.*.monster_distance",
+            "actors.*.injury",
+            "actors.*.monster",
+            "actors.*.monster_size"
+          ]
+        }
+      },
+      "next": [
+        "fog",
+        "ended"
+      ]
+    },
+    "fog": {
+      "enter_when": {
+        "field": "hp",
+        "gte": 1
+      },
+      "note": "The foggy moment of coming back to the rooms: slow, disoriented, recovering. Only for a player who is alive.",
+      "actions": {
+        "recover": {
+          "describe": "get up, look around, rest, think, or use an item",
+          "allow": [
+            "actors.*.noise",
+            "actors.*.inventory",
+            "actors.*.statuses",
+            "actors.*.hp",
+            "actors.*.level",
+            "actors.*.avoid",
+            "imeng.location",
+            "actors.*.monster_distance",
+            "actors.*.injury",
+            "actors.*.monster",
+            "actors.*.monster_size"
+          ]
+        }
+      },
+      "next": [
+        "explore"
+      ]
+    },
+    "ended": {
+      "note": "The player is dead. Close the story gently; no further moves.",
+      "next": []
+    }
+  },
+  "off_phase": {
+    "mode": "hush",
+    "texts": [
+      "Hush, you.",
+      "Not now. Something is listening.",
+      "Shh."
+    ]
+  },
+  "terms": {
+    "file": "terms.md",
+    "notice": "The terms are in your private messages.",
+    "remember_days": 365
+  }
+}

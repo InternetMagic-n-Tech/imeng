@@ -1,0 +1,75 @@
+{
+  "actor_template": {
+    "name": "",
+    "stain": 0,
+    "day": 1,
+    "glow": 0,
+    "tags": [],
+    "history": [],
+    "statuses": [],
+    "mood": "calm"
+  },
+  "initial_state": {
+    "game": {
+      "ambient": "mild",
+      "sky": "clear",
+      "zone": ""
+    },
+    "actors": {
+      "user": {
+        "name": "Joey",
+        "stain": 4,
+        "day": 5,
+        "glow": 2,
+        "tags": [],
+        "history": [],
+        "statuses": [],
+        "mood": "calm"
+      }
+    }
+  },
+  "limits": {
+    "stain": {
+      "min": 0,
+      "max": 10
+    },
+    "glow": {
+      "min": 0,
+      "max": 5
+    }
+  },
+  "unique_fields": [
+    "tags"
+  ],
+  "decrease_locks": [
+    { "field": "day", "reason": "days only move forward" },
+    {
+      "field": "stain",
+      "while": {
+        "field": "glow",
+        "gt": 0
+      },
+      "reason": "the glow coats the stain"
+    }
+  ],
+  "allowed_values": {
+    "game.ambient": [
+      "cold",
+      "mild",
+      "hot"
+    ],
+    "mood": [
+      "calm",
+      "angry"
+    ],
+    "game.sky": [
+      "clear",
+      "overcast",
+      "storm"
+    ]
+  },
+  "sticky_fields": {
+    "game.sky": 2,
+    "game.zone": 2
+  }
+}

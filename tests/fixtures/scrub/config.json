@@ -1,0 +1,68 @@
+{
+  "model_id": "test-game",
+  "history_limit": 3,
+  "events_limit": 4,
+  "dice": true,
+  "actor_template": {
+    "name": "",
+    "hp": null,
+    "statuses": [],
+    "inventory": [],
+    "history": []
+  },
+  "initial_state": {
+    "game": {
+      "location": "start"
+    },
+    "actors": {
+      "user": {
+        "name": "you",
+        "hp": 10,
+        "statuses": [],
+        "inventory": [],
+        "history": []
+      }
+    }
+  },
+  "state_rules": "Track gold.",
+  "limits": {
+    "hp": {
+      "min": 0,
+      "max": 10
+    },
+    "gold": {
+      "min": 0
+    }
+  },
+  "exit_when": [
+    {
+      "field": "hp",
+      "lte": 0,
+      "reason": "died"
+    },
+    {
+      "field": "score",
+      "gte": 100,
+      "reason": "won"
+    }
+  ],
+  "session_rules": [
+    {
+      "id": "charity",
+      "text": "Proceeds go to charity.",
+      "locked": true
+    },
+    {
+      "id": "fog",
+      "text": "Fog traps everyone.",
+      "lift_hint": "Lift if a way out is found."
+    }
+  ],
+  "judge_model": "judge-model",
+  "judge_confirmations": 2,
+  "setup_turns": 2,
+  "setup_hint": "Record the party.",
+  "judge_history_items": 2,
+  "judge_events": 3,
+  "hide_state_echo": true
+}

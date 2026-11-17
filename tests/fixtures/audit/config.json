@@ -1,0 +1,10 @@
+{
+  "invocation": "always",
+  "judge_model": "j",
+  "enforce_rules": true,
+  "session_rules": [
+    { "id": "no_jumping", "text": "Nobody is asked to jump." },
+    { "id": "gone", "text": "Already lifted.", "locked": false }
+  ],
+  "judge_instance": { "port": 11999, "num_ctx": 4096, "gpu": false, "models_dir": "/tmp/models" }
+}

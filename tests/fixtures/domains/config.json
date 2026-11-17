@@ -1,0 +1,21 @@
+{
+  "actor_template": { "name": "", "score": 0, "inventory": [], "seen": [], "counts": {}, "history": [] },
+  "id_domains": {
+    "actors": { "at": "actors", "mint": { "kind": "counter", "prefix": "npc_" } },
+    "items": { "at": "game.items", "mint": { "kind": "counter", "prefix": "item_" } },
+    "places": { "at": "game.places", "key": "id", "when": "collision", "mint": { "kind": "random", "alphabet": "digits", "length": 6 } },
+    "tags": { "at": "game.tags", "key": "id", "when": "change", "mint": { "kind": "hash", "algo": "md5", "length": 8 } }
+  },
+  "refs": {
+    "game.location": { "to": "places" },
+    "game.tagged": { "to": "tags" },
+    "actors.*.inventory": { "to": "items" },
+    "actors.*.seen": { "to": "items", "repeat": true },
+    "actors.*.counts": { "keys_to": "items" }
+  },
+  "actor_ref_fields": ["game.target"],
+  "initial_state": {
+    "game": { "location": null, "tagged": null, "target": null, "items": {}, "places": [], "tags": [] },
+    "actors": { "user": { "name": "you", "score": 0, "inventory": [], "seen": [], "counts": {}, "history": [] } }
+  }
+}

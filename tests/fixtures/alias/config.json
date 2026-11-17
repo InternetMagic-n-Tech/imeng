@@ -1,0 +1,5 @@
+{
+  "alias_fields": ["address_as"],
+  "actor_template": { "name": "", "address_as": "", "statuses": [], "history": [] },
+  "initial_state": { "game": {}, "actors": { "user": { "name": "Joey", "address_as": "", "statuses": [], "history": [] }, "npc_0": { "name": "Marta", "address_as": "", "statuses": [], "history": [], "controlled_by": "npc" } } }
+}

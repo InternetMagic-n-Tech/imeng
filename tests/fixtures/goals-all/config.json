@@ -1,0 +1,54 @@
+{
+  "model_id": "goals-all",
+  "invocation": "always",
+  "judge_instance": {
+    "gpu": true
+  },
+  "state_notes": true,
+  "actor_template": {
+    "name": "",
+    "score": 0,
+    "statuses": [],
+    "history": []
+  },
+  "initial_state": {
+    "game": {
+      "phase": "registration"
+    },
+    "actors": {
+      "user": {
+        "name": "Bea",
+        "score": 0,
+        "statuses": [],
+        "history": [],
+        "controlled_by": "user"
+      },
+      "npc_bo": {
+        "name": "Bo",
+        "score": 0,
+        "statuses": [],
+        "history": [],
+        "controlled_by": "npc",
+        "description": "a loud quiz show regular"
+      }
+    }
+  },
+  "writable_fields": [
+    "name",
+    "score",
+    "statuses",
+    "history"
+  ],
+  "allowed_values": {},
+  "goals": {
+    "min": 1,
+    "host": "all",
+    "standings": "always",
+    "reveal": "never",
+    "npc": "none",
+    "texts": {
+      "saved": "Kept: {goal}",
+      "reaction": "{who} beams."
+    }
+  }
+}

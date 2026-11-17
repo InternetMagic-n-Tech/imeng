@@ -1,0 +1,59 @@
+# Example environment for docker compose and `npm run dev`. Copy to the env file and change the passwords, or run `npm run env:init`, which writes
+# one with random secrets and never overwrites an existing one. Never commit the real file and never paste it into a chat.
+# Compose reads it for the ${VARS} in docker-compose.yml. Variables not listed here keep the defaults in docker-compose.yml and README.md.
+
+# --- Required for docker compose (no default) -------------------------------------------------------------------------
+POSTGRES_PASSWORD=change-me-postgres
+REDIS_PASSWORD=change-me-redis
+MINIO_ROOT_PASSWORD=change-me-minio
+COMMANDER_PASSWORD=change-me-commander
+
+# --- Strongly recommended ----------------------------------------------------------------------------------------------
+# Require "Authorization: Bearer <key>" on /v1 (needed before binding the proxy beyond localhost).
+PROXY_API_KEY=
+# Salts the PII filter's tokens (a long random string). The doctor warns when a game uses pii_filter without it.
+PII_SALT=
+
+# --- Who owns the bind mounts under ./docker/volumes (your `id -u` and `id -g`) -----------------------------------------
+REDIS_UID=1000
+REDIS_GID=1000
+
+# --- Defaults you may change --------------------------------------------------------------------------------------------
+POSTGRES_USER=proxy
+POSTGRES_DB=proxy
+POSTGRES_PORT=15432
+MINIO_ROOT_USER=proxy
+MINIO_PORT=19000
+MINIO_CONSOLE_PORT=19001
+MLFLOW_PORT=15000
+BUCKET_NAME=proxy-files
+REDIS_PORT=16379
+COMMANDER_USER=admin
+REDIS_COMMANDER_PORT=18081
+CLEANUP_EVERY_MS=3600000
+
+# --- The proxy ---------------------------------------------------------------------------------------------------------
+PROXY_PORT=3001
+# Localhost only. Set 0.0.0.0 only together with PROXY_API_KEY and a TLS reverse proxy in front.
+PROXY_BIND=127.0.0.1
+# Which imeng the `proxy` service runs (the imeng-* services each run their own).
+PROXY_GAME_DIR=imengs/lighthouse
+# "no" lets Ctrl+C end a foreground `docker compose up`; use unless-stopped with `up -d`.
+PROXY_RESTART=no
+NODE_VERSION=22
+
+# --- Models stay on the host: Ollama for the narrator, a CPU-only judge (`npm run judge`) on the Docker bridge ------------
+OLLAMA_MODEL=gemma4:26b
+PROXY_UPSTREAM=http://host.docker.internal:11434/v1
+PROXY_JUDGE_URL=http://host.docker.internal:11435
+# 1 = the proxy runs the doctor at startup and exits 1 if a check fails (the restart policy then retries until the judge is up).
+PROXY_PREFLIGHT=0
+
+# --- Pictures (only for imengs with an images block or seat pictures) -----------------------------------------------------
+# The base of the picture links the proxy writes (renders and seat pictures). Set it to the address people reach the proxy at.
+PUBLIC_URL=http://localhost:3001
+# Host-only, for `npm run dev` and `npm run doctor` (compose does not pass them to the container; the models stay on the host):
+# A1111_DIR=/path/to/stable-diffusion-webui
+# The vision module (src/tools/vision/README.md): a Python venv with `pip install -r src/tools/vision/requirements.txt`, and a local YOLO-pose weights file (never downloaded).
+# VISION_VENV=/path/to/venvs/vision
+# VISION_POSE_WEIGHTS=/path/to/yolov8n-pose.pt

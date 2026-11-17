@@ -1,0 +1,134 @@
+{
+  "model_id": "deal",
+  "invocation": "always",
+  "judge_instance": {
+    "gpu": true
+  },
+  "actor_template": {
+    "name": "",
+    "score": 0,
+    "statuses": [],
+    "history": [],
+    "description": "",
+    "outfit": "",
+    "age": null,
+    "role": "contestant",
+    "relationship": "single",
+    "chips": 0,
+    "status": "in",
+    "hole": [],
+    "pot": 0,
+    "board": [],
+    "reserve": [],
+    "dealt": []
+  },
+  "initial_state": {
+    "game": {
+      "phase": "registration",
+      "region": "quebec",
+      "season": "winter",
+      "place": "outdoors",
+      "variant": "holdem"
+    },
+    "actors": {
+      "user": {
+        "name": "Bea",
+        "score": 0,
+        "statuses": [],
+        "history": [],
+        "controlled_by": "user",
+        "role": "contestant",
+        "description": "",
+        "outfit": "",
+        "age": 30,
+        "relationship": "single",
+        "chips": 100,
+        "status": "in",
+        "hole": []
+      },
+      "npc_bo": {
+        "name": "Bo",
+        "score": 0,
+        "statuses": [],
+        "history": [],
+        "controlled_by": "npc",
+        "role": "contestant",
+        "relationship": "single",
+        "age": 30
+      },
+      "table": {
+        "name": "Table",
+        "pot": 0,
+        "board": [],
+        "reserve": [],
+        "dealt": [],
+        "controlled_by": "npc"
+      },
+      "bo": {
+        "name": "Bo",
+        "chips": 100,
+        "status": "in",
+        "hole": [],
+        "controlled_by": "npc"
+      },
+      "cy": {
+        "name": "Cy",
+        "chips": 100,
+        "status": "sitting out",
+        "hole": [],
+        "controlled_by": "npc"
+      }
+    }
+  },
+  "writable_fields": [
+    "name",
+    "chips",
+    "status",
+    "hole",
+    "pot",
+    "board",
+    "reserve",
+    "dealt",
+    "bet"
+  ],
+  "role_field": "role",
+  "phases": {
+    "start": "registration",
+    "registration": {
+      "next": [
+        "preflop"
+      ]
+    },
+    "preflop": {
+      "next": [
+        "flop",
+        "showdown"
+      ],
+      "writers": {
+        "hole": [],
+        "board": [],
+        "reserve": [],
+        "dealt": []
+      }
+    },
+    "flop": {
+      "next": [
+        "turn"
+      ]
+    },
+    "turn": {
+      "next": [
+        "river"
+      ]
+    },
+    "river": {
+      "next": [
+        "showdown"
+      ]
+    },
+    "showdown": {
+      "next": []
+    }
+  },
+  "deal": "server"
+}

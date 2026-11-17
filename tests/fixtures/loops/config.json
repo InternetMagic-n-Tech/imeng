@@ -1,0 +1,126 @@
+{
+  "model_id": "loops",
+  "invocation": "always",
+  "judge_instance": {
+    "gpu": true
+  },
+  "actor_template": {
+    "name": "",
+    "score": 0,
+    "goals": [],
+    "statuses": [],
+    "history": []
+  },
+  "initial_state": {
+    "game": {
+      "phase": "explore",
+      "enemy_hp": 0,
+      "spell_done": 0
+    },
+    "actors": {
+      "user": {
+        "name": "Bea",
+        "score": 0,
+        "goals": [],
+        "statuses": [],
+        "history": [],
+        "controlled_by": "user"
+      },
+      "npc_bo": {
+        "name": "Bo",
+        "score": 0,
+        "goals": [],
+        "statuses": [],
+        "history": [],
+        "controlled_by": "npc"
+      }
+    }
+  },
+  "writable_fields": [
+    "name",
+    "score",
+    "goals",
+    "statuses",
+    "history",
+    "room",
+    "hp"
+  ],
+  "allowed_values": {
+    "game.phase": [
+      "explore",
+      "combat",
+      "after",
+      "magic"
+    ]
+  },
+  "phases": {
+    "start": "explore",
+    "explore": {
+      "actions": {
+        "move": {
+          "describe": "walk, look around or search",
+          "allow": [
+            "actors.*.room"
+          ]
+        },
+        "fight": {
+          "describe": "pick a fight",
+          "allow": [
+            "game.enemy_hp"
+          ]
+        }
+      },
+      "next": [
+        "combat",
+        "magic"
+      ]
+    },
+    "combat": {
+      "actions": {
+        "attack": {
+          "describe": "attack or defend",
+          "allow": [
+            "game.enemy_hp",
+            "actors.*.hp"
+          ]
+        }
+      },
+      "exit_when": {
+        "field": "game.enemy_hp",
+        "lte": 0
+      },
+      "next": [
+        "after"
+      ]
+    },
+    "after": {
+      "silent": true,
+      "next": [
+        "explore"
+      ]
+    },
+    "magic": {
+      "interrupt": true,
+      "actions": {
+        "cast": {
+          "describe": "cast a spell",
+          "allow": [
+            "game.spell_done"
+          ]
+        }
+      },
+      "exit_when": {
+        "field": "game.spell_done",
+        "gte": 1
+      },
+      "next": [
+        "@return"
+      ]
+    }
+  },
+  "off_phase": {
+    "texts": [
+      "Hush, you."
+    ]
+  }
+}

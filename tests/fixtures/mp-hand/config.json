@@ -1,0 +1,49 @@
+{
+  "model_id": "mp-hand",
+  "invocation": "always",
+  "actor_template": {
+    "name": "",
+    "hp": null,
+    "statuses": [],
+    "inventory": [],
+    "history": [],
+    "caught": false,
+    "hole": []
+  },
+  "initial_state": {
+    "game": {
+      "location": "start",
+      "minutes": 0
+    },
+    "actors": {
+      "user": {
+        "name": "you",
+        "hp": 10,
+        "statuses": [],
+        "inventory": [],
+        "history": []
+      }
+    }
+  },
+  "state_rules": "Track hp.",
+  "limits": {
+    "hp": {
+      "min": 0,
+      "max": 10
+    }
+  },
+  "judge_model": "judge-model",
+  "setup_turns": 0,
+  "multiplayer": {
+    "enabled": true,
+    "min_players": 2,
+    "clock": {
+      "field": "game.minutes",
+      "unit": "minute"
+    },
+    "silenced_reply": "The living do not hear you."
+  },
+  "private_hands": {
+    "field": "hole"
+  }
+}

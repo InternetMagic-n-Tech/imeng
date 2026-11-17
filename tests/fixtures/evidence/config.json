@@ -1,0 +1,16 @@
+{
+  "model_id": "evidence",
+  "invocation": "always",
+  "judge_instance": { "gpu": true },
+  "actor_template": { "name": "", "score": 0, "statuses": [], "history": [] },
+  "initial_state": {
+    "game": { "phase": "playing" },
+    "actors": {
+      "user": { "name": "Bea", "score": 0, "statuses": [], "history": [], "controlled_by": "user" },
+      "npc_bo": { "name": "Bo", "score": 0, "statuses": [], "history": [], "controlled_by": "npc" }
+    }
+  },
+  "writable_fields": ["name", "score", "statuses", "history"],
+  "limits": { "score": { "min": 0, "max_step": 2 } },
+  "field_evidence": { "score": "\\bpoints? (?:goes )?to {name}\\b" }
+}

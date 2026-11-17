@@ -1,0 +1,8 @@
+{
+  "early_sync": true,
+  "invocation": "always",
+  "judge_model": "j",
+  "judge_instance": { "port": 11999, "num_ctx": 4096, "gpu": false, "models_dir": "/tmp/models" },
+  "actor_template": { "name": "", "statuses": [], "history": [] },
+  "initial_state": { "game": {}, "actors": { "user": { "name": "you", "statuses": [], "history": [] } } }
+}

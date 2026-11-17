@@ -1,0 +1,21 @@
+{
+  "reasoning": "show",
+  "judge_instance": { "gpu": true },
+  "model_id": "game-turn",
+  "invocation": "always",
+  "actor_template": { "name": "", "score": 0, "stain": 0, "statuses": [], "history": [] },
+  "initial_state": {
+    "game": { "phase": "playing" },
+    "actors": {
+      "user": { "name": "Bea", "score": 0, "stain": 0, "statuses": [], "history": [] },
+      "npc_bo": { "name": "Bo", "score": 0, "stain": 0, "statuses": [], "history": [], "controlled_by": "npc" }
+    }
+  },
+  "game_turn": { "advance": "judged", "rule": "one show round: questions, then punishments", "word": "round" },
+  "turn_events": [
+    { "id": "tie", "at": 2, "if": { "field": "stain", "aggregate": "top_count", "gte": 2 }, "set": { "game.phase": "sudden_death" }, "text": "Tied at the top: one lightning round, one word answers." },
+    { "id": "win", "at": 2, "if": { "logic": "NOT", "conditions": [{ "field": "stain", "aggregate": "top_count", "gte": 2 }] }, "end": true, "text": "Crown the most stained contestant." },
+    { "id": "final", "at": 3, "end": true, "text": "Name the winner of the lightning round." },
+    { "id": "tick", "every": 1, "text": "A new round begins." }
+  ]
+}

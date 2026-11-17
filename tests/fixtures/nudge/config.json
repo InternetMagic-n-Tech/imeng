@@ -1,0 +1,64 @@
+{
+  "model_id": "nudge",
+  "invocation": "always",
+  "judge_instance": {
+    "gpu": true
+  },
+  "actor_template": {
+    "name": "",
+    "score": 0,
+    "statuses": [],
+    "history": [],
+    "description": "",
+    "outfit": "",
+    "age": null,
+    "role": "contestant",
+    "relationship": "single"
+  },
+  "initial_state": {
+    "game": {
+      "phase": "playing"
+    },
+    "actors": {
+      "user": {
+        "name": "Bea",
+        "score": 0,
+        "statuses": [],
+        "history": [],
+        "controlled_by": "user",
+        "role": "contestant",
+        "description": "",
+        "outfit": "",
+        "age": 30,
+        "relationship": "single"
+      },
+      "npc_bo": {
+        "name": "Bo",
+        "score": 0,
+        "statuses": [],
+        "history": [],
+        "controlled_by": "npc",
+        "role": "contestant",
+        "relationship": "single",
+        "age": 30
+      }
+    }
+  },
+  "writable_fields": [
+    "name",
+    "score",
+    "statuses",
+    "history",
+    "description",
+    "outfit",
+    "age",
+    "role",
+    "relationship"
+  ],
+  "role_field": "role",
+  "enforce_rules": false,
+  "producer": {
+    "nudge": true,
+    "who": "role"
+  }
+}

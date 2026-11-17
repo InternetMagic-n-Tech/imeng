@@ -1,0 +1,113 @@
+{
+  "model_id": "phase-gate",
+  "invocation": "always",
+  "judge_instance": {
+    "gpu": true
+  },
+  "actor_template": {
+    "name": "",
+    "statuses": [],
+    "history": []
+  },
+  "initial_state": {
+    "game": {
+      "phase": "play",
+      "idle_after": "3m",
+      "minutes": 0,
+      "dance": "",
+      "limit": 2,
+      "hold": 0,
+      "pub": 0
+    },
+    "actors": {
+      "user": {
+        "name": "Bea",
+        "statuses": [],
+        "history": [],
+        "controlled_by": "user"
+      }
+    }
+  },
+  "writable_fields": [
+    "name",
+    "statuses",
+    "history"
+  ],
+  "multiplayer": {
+    "enabled": true,
+    "min_players": 2,
+    "clock": {
+      "field": "game.minutes",
+      "unit": "minute"
+    },
+    "idle_vote": {
+      "min_votes": 1
+    }
+  },
+  "phases": {
+    "start": "play",
+    "play": {
+      "next": [
+        "dance",
+        "tango"
+      ],
+      "private_narration": {
+        "line": "Shh.",
+        "recipients": "escrow",
+        "when": {
+          "field": "game.pub",
+          "gte": 5
+        }
+      }
+    },
+    "dance": {
+      "gated": true,
+      "max_rounds": "imeng.limit",
+      "next": [
+        {
+          "to": "play",
+          "ops": [
+            {
+              "op": "set",
+              "path": "game.dance",
+              "value": ""
+            }
+          ]
+        }
+      ],
+      "private_narration": {
+        "line": "A private dance is on.",
+        "recipients": "escrow",
+        "unless": {
+          "field": "game.pub",
+          "gte": 1
+        }
+      }
+    },
+    "storm": {
+      "interrupt": true,
+      "next": [
+        "@return"
+      ]
+    },
+    "stuck": {
+      "gated": true,
+      "next": []
+    },
+    "tango": {
+      "gated": {
+        "when": {
+          "field": "game.hold",
+          "gte": 1
+        },
+        "blocks": [
+          "idle",
+          "deal"
+        ]
+      },
+      "next": [
+        "play"
+      ]
+    }
+  }
+}

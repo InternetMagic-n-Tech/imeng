@@ -1,0 +1,51 @@
+{
+  "model_id": "mp-tension",
+  "invocation": "always",
+  "actor_template": {
+    "name": "",
+    "hp": null,
+    "statuses": [],
+    "inventory": [],
+    "history": []
+  },
+  "initial_state": {
+    "game": {
+      "location": "start",
+      "minutes": 0
+    },
+    "actors": {
+      "user": {
+        "name": "you",
+        "hp": 10,
+        "statuses": [],
+        "inventory": [],
+        "history": []
+      }
+    }
+  },
+  "state_rules": "Track hp.",
+  "limits": {
+    "hp": {
+      "min": 0,
+      "max": 10
+    }
+  },
+  "judge_model": "judge-model",
+  "setup_turns": 0,
+  "multiplayer": {
+    "enabled": true,
+    "min_players": 2,
+    "clock": {
+      "field": "game.minutes",
+      "unit": "minute"
+    },
+    "tension": {
+      "mode": "beats",
+      "max_words": 12
+    },
+    "private": {
+      "reply": "narrator",
+      "max_words": 20
+    }
+  }
+}

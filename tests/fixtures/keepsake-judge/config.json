@@ -1,0 +1,115 @@
+{
+  "judge_instance": {
+    "gpu": true
+  },
+  "model_id": "keepsake-judge",
+  "invocation": "always",
+  "actor_template": {
+    "name": "",
+    "description": "",
+    "statuses": [],
+    "history": [],
+    "outfit": "",
+    "gak_colors": [],
+    "score": 0
+  },
+  "initial_state": {
+    "game": {
+      "phase": "playing"
+    },
+    "actors": {
+      "user": {
+        "name": "Bea",
+        "description": "a tall woman in a red coat",
+        "statuses": [],
+        "history": [],
+        "outfit": "a green apron",
+        "gak_colors": [
+          "pink"
+        ],
+        "score": 0
+      },
+      "npc_bo": {
+        "name": "Bo",
+        "description": "a short man with a beard",
+        "statuses": [],
+        "history": [],
+        "controlled_by": "npc",
+        "outfit": "a plain shirt",
+        "gak_colors": [],
+        "score": 0
+      }
+    }
+  },
+  "images": {
+    "renderer": "comfyui",
+    "url": "http://127.0.0.1:8188",
+    "workflow": "workflow.json",
+    "workflow_reference": "workflow-ref.json",
+    "size": {
+      "width": 512,
+      "height": 640
+    },
+    "steps": 12,
+    "prompts": {
+      "positive": "highly detailed",
+      "negative": "blurry",
+      "style": "oil painting"
+    },
+    "seeds": {
+      "Bo": 4242
+    },
+    "reference": {
+      "urls": false
+    },
+    "ask": {
+      "words": [
+        "picture",
+        "draw me"
+      ]
+    },
+    "max_queue": 1,
+    "state_fields": [
+      "description",
+      "outfit",
+      "gak_colors"
+    ],
+    "game_fields": [
+      "phase"
+    ],
+    "keep_fields": [
+      "gak_colors",
+      "outfit"
+    ],
+    "refine": {
+      "judge": {
+        "model": "refine-big",
+        "url": "http://bigger:11434"
+      }
+    },
+    "keepsake": {
+      "options": "judge",
+      "theme": "a messy TV game show",
+      "max_options": 2,
+      "game": "Gak Show"
+    },
+    "judge": {
+      "model": "prompt-big",
+      "url": "http://big:11434"
+    }
+  },
+  "wrap_up": {
+    "at_turn": 3,
+    "over_reply": "The show is over."
+  },
+  "goals": {
+    "device": "the Notebook",
+    "min": 1,
+    "max": 2,
+    "host": "blind",
+    "reward": "keepsake",
+    "reveal": "end",
+    "npc": "none",
+    "keepsake_for": "done"
+  }
+}

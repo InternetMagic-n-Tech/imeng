@@ -1,0 +1,20 @@
+{
+  "model_id": "juego",
+  "user_id": "player",
+  "npc_prefix": "guest_",
+  "dice": { "d6": 3, "d20": 2 },
+  "writable_fields": ["name", "hp", "gold", "statuses", "inventory", "history", "description", "relationship"],
+  "limits": { "hp": { "min": 0, "max": 20, "max_step": 5 }, "gold": { "min": 0, "max_step": 100 } },
+  "trigger_pattern": "si el primer mensaje es",
+  "placeholder_patterns": ["por definir", "desconocid[oa]"],
+  "prompts": {
+    "extractor": "Eres un motor de contabilidad. Devuelve SOLO JSON {\"ops\":[...]}.",
+    "setup": "Lee los mensajes iniciales y devuelve SOLO JSON con reglas y personajes.",
+    "rule_judge": "Revisa las reglas vigentes y devuelve SOLO JSON con veredictos.",
+    "invocation": "Decide si el primer mensaje invoca estas instrucciones. Devuelve SOLO JSON."
+  },
+  "actor_template": { "name": "", "hp": null, "gold": 0, "statuses": [], "inventory": [], "history": [] },
+  "initial_state": { "game": {}, "actors": { "player": { "name": "tú", "hp": 10, "gold": 0, "statuses": [], "inventory": [], "history": [] } } },
+  "session_rules": [{ "id": "niebla", "text": "La niebla atrapa a todos." }],
+  "judge_model": "j"
+}

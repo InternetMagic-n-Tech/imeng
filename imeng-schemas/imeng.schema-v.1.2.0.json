@@ -1,0 +1,1760 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "description": "Path or URL of imeng.schema.json (editor help only).",
+      "type": "string"
+    },
+    "schema_version": {
+      "description": "Version of this file's format. Missing means 1.",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "model_id": {
+      "description": "Name shown in Open WebUI's model list.",
+      "type": "string"
+    },
+    "initial_state": {
+      "type": "object",
+      "properties": {
+        "game": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {}
+        },
+        "actors": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {}
+          }
+        }
+      },
+      "additionalProperties": {}
+    },
+    "actor_template": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {}
+    },
+    "history_limit": {
+      "description": "Old name of actor_history_limit (v1.1). Still accepted.",
+      "type": "number"
+    },
+    "actor_history_limit": {
+      "description": "Default 20. Max entries kept in each actor's history list.",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "private_guidance": {
+      "description": "How the actors of this game use the private channel (<private>, private chats), in words. Told to the judge that decides who a private message is for and to the narrator when a private part is present. Example: \"Contestants whisper to each other or to the Host; a note to the Host is for the Host alone.\"",
+      "type": "string"
+    },
+    "private_only_reply": {
+      "description": "Default \"...\". What the player sees when the narrator's whole reply was inside <private>...</private> (which the player never sees; env SHOW_PRIVATE=1 shows it while debugging). Example: \"The Host makes notes.\". Game.json only: not a state field, so no model can change it.",
+      "type": "string"
+    },
+    "too_long_reply": {
+      "description": "What the player is told (HTTP 413) when a message makes the prompt too big for the hardware (env CONTEXT_MAX_TOKENS). Nothing is saved; they edit and resend. Default: a plain English line.",
+      "type": "string"
+    },
+    "events_limit": {
+      "type": "number"
+    },
+    "state_rules": {
+      "type": "string"
+    },
+    "limits": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "min": {
+            "type": "number"
+          },
+          "max": {
+            "type": "number"
+          },
+          "max_step": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "exit_when": {
+      "description": "Auto-exit an actor when the condition holds: a comparison on one field, or an AND/OR/NOT tree with aggregates (avg/min/max/sum over actors still in).",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/__schema0"
+      }
+    },
+    "exit_group_when": {
+      "description": "End the game for everyone when the condition holds: like exit_when, but a plain comparison needs `share` of the actors still in.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/__schema0"
+      }
+    },
+    "allowed_values": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "array",
+        "items": {}
+      }
+    },
+    "sticky_fields": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 9007199254740991
+      }
+    },
+    "field_evidence": {
+      "description": "An actor field that changes only when the narrator's own words contain a phrase: {\"score\":\"point to {name}\"} (a case-insensitive regular expression; {name} is the actor's name, address_as or id). What the player says never counts, and a change the narration does not support is dropped, not retried.",
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "unique_fields": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "actor_ref_fields": {
+      "description": "Fields that hold an actor id, besides game.current_actor: \"game.<field>\" for a shared field, a bare name for a field of every actor. Writes are checked (an id, or a name the judge model matches) and the field is cleared when that actor leaves. Server-owned and nested entries are ignored.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "id_domains": {
+      "description": "Places where things with ids live (\"actors\" always is one). A new entry is made with the add op, removed with drop.",
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "at": {
+            "type": "string",
+            "description": "Where the entries live: \"actors\", or \"game.<field>\"."
+          },
+          "key": {
+            "description": "Set it when the container is an array of objects: the field of each entry that holds its id. Leave it out for a map (the key is the id).",
+            "type": "string"
+          },
+          "from": {
+            "description": "The field the natural id comes from, and the default input of a hash or a uuid 5. Default name.",
+            "type": "string"
+          },
+          "when": {
+            "description": "creation (default): mint an id for every new entry. collision: use the natural id (the name, as a slug) and mint only if it is taken. change: mint at creation and again whenever `from` changes (every reference follows).",
+            "type": "string",
+            "enum": [
+              "creation",
+              "collision",
+              "change"
+            ]
+          },
+          "mint": {
+            "description": "How a new id is made. Leave it out: the id is the one given, or the slug of `from`, and a taken id is refused.",
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "uuid"
+                  },
+                  "version": {
+                    "description": "4 random (default), 5 from a field (same name, same id), 7 time-ordered.",
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "const": 4
+                      },
+                      {
+                        "type": "number",
+                        "const": 5
+                      },
+                      {
+                        "type": "number",
+                        "const": 7
+                      }
+                    ]
+                  },
+                  "namespace": {
+                    "description": "uuid 5: the namespace UUID (default: the DNS namespace).",
+                    "type": "string"
+                  },
+                  "of": {
+                    "description": "uuid 5: the field it is made from (default: `from`).",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "random"
+                  },
+                  "alphabet": {
+                    "description": "digits, hex, base32, base36, base58, base62 (default), base64url, or the characters to use.",
+                    "type": "string"
+                  },
+                  "length": {
+                    "description": "Default 8.",
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 64
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "number"
+                  },
+                  "min": {
+                    "description": "Default 1.",
+                    "type": "number"
+                  },
+                  "max": {
+                    "description": "Default 999999.",
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "counter"
+                  },
+                  "prefix": {
+                    "type": "string"
+                  },
+                  "pad": {
+                    "description": "Zero-pad to this many digits.",
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "timestamp"
+                  },
+                  "format": {
+                    "description": "Default epoch_ms. iso uses - instead of : and . so it is a valid id.",
+                    "type": "string",
+                    "enum": [
+                      "epoch_ms",
+                      "epoch_s",
+                      "iso",
+                      "compact"
+                    ]
+                  },
+                  "prefix": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "hash"
+                  },
+                  "algo": {
+                    "description": "Default sha256.",
+                    "type": "string",
+                    "enum": [
+                      "md5",
+                      "sha1",
+                      "sha256"
+                    ]
+                  },
+                  "of": {
+                    "description": "The field it is made from (default: `from`).",
+                    "type": "string"
+                  },
+                  "length": {
+                    "description": "Keep this many characters.",
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 9007199254740991
+                  },
+                  "prefix": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          }
+        },
+        "required": [
+          "at"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "refs": {
+      "description": "Fields that must hold ids of a domain: {\"game.location\":{\"to\":\"locations\"},\"actors.*.inventory\":{\"to\":\"items\"},\"actors.*.counts\":{\"keys_to\":\"items\"}}. A write is checked (an id, or a name the judge model matches); the field is cleared when the entry goes.",
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "to": {
+                "type": "string"
+              },
+              "repeat": {
+                "description": "Arrays: may the same id appear twice? Default false.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "to"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "keys_to": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "keys_to"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      }
+    },
+    "multiplayer": {
+      "description": "Shared games. Off unless enabled is true.",
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "description": "Default false. Several real people play one game: a chat shared with Open WebUI's \"Allow replies\" (or a channel) is the table.",
+          "type": "boolean"
+        },
+        "turns": {
+          "description": "How a round starts. ready (default): collect what everybody says, narrate when all said ready. free: every message is a round. token: only the holder of token_field acts. judged: the judge model decides from turn_rule.",
+          "type": "string",
+          "enum": [
+            "ready",
+            "free",
+            "token",
+            "judged"
+          ]
+        },
+        "token_field": {
+          "description": "Policy token: the game field that names the actor whose turn it is. Default game.current_actor.",
+          "type": "string"
+        },
+        "off_turn": {
+          "description": "Policy token or judged: what happens to a message that is not its author's moment. note (default): they are told; queue: it is kept and goes in with the next round.",
+          "type": "string",
+          "enum": [
+            "note",
+            "queue"
+          ]
+        },
+        "turn_rule": {
+          "description": "Policy judged (and context for the judge in any policy): the rule in words, e.g. \"Only the crane operator reacts to radio calls; the foreman may speak at any time.\"",
+          "type": "string"
+        },
+        "order": {
+          "description": "How several players' lines in one round are sequenced: fifo (arrival, default), filo (latest first), join (the order people joined), random, or by an actor field such as initiative.",
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "fifo",
+                "filo",
+                "join",
+                "random"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "by": {
+                  "type": "string",
+                  "description": "An actor field."
+                },
+                "desc": {
+                  "description": "Default true: highest first.",
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "by"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "clock": {
+          "description": "The in-game clock that in-game timeouts and away-time use.",
+          "type": "object",
+          "properties": {
+            "field": {
+              "type": "string",
+              "description": "A game field, e.g. \"game.minutes\"."
+            },
+            "unit": {
+              "description": "What one step of the field is. count (default) is a plain counter such as a round number.",
+              "type": "string",
+              "enum": [
+                "second",
+                "minute",
+                "hour",
+                "day",
+                "week",
+                "count"
+              ]
+            }
+          },
+          "required": [
+            "field"
+          ],
+          "additionalProperties": false
+        },
+        "tension": {
+          "description": "Tension beats while the table waits.",
+          "type": "object",
+          "properties": {
+            "mode": {
+              "description": "What the table sees while the game waits on someone. status (default): a terse line (\"Ready: Bea. Waiting for: Bo.\"). beats: the narrator writes one short in-story line that keeps the waiting player's declared action in suspension (an extra short narrator call per message).",
+              "type": "string",
+              "enum": [
+                "status",
+                "beats"
+              ]
+            },
+            "max_words": {
+              "description": "Default 25.",
+              "type": "integer",
+              "minimum": 5,
+              "maximum": 120
+            },
+            "cooldown_seconds": {
+              "description": "Default 0. Minimum time between two beats; in between, the terse status is used.",
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "additionalProperties": false
+        },
+        "private": {
+          "description": "A seated player's new chat with the game is a private channel to the narrator. false turns private chats off.",
+          "anyOf": [
+            {
+              "type": "boolean",
+              "const": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "reply": {
+                  "description": "What a player gets in their private chat. ack (default): a short fixed line. narrator: a short private narrator reply (an extra narrator call). none: \"(noted)\".",
+                  "type": "string",
+                  "enum": [
+                    "ack",
+                    "narrator",
+                    "none"
+                  ]
+                },
+                "unseated": {
+                  "description": "Default ignore. A <private>-only message in the shared chat from someone who is not at the table: ignore answers with private_only_reply and keeps nothing; seat puts them at the table (as if they had spoken) and files the note.",
+                  "type": "string",
+                  "enum": [
+                    "ignore",
+                    "seat"
+                  ]
+                },
+                "narrator_sees": {
+                  "description": "Default true: private notes go to the narrator with the next round, marked never to reveal.",
+                  "type": "boolean"
+                },
+                "max_words": {
+                  "description": "Narrator replies: default 60.",
+                  "type": "integer",
+                  "minimum": 10,
+                  "maximum": 300
+                }
+              },
+              "additionalProperties": false
+            }
+          ]
+        },
+        "seat_days": {
+          "description": "Default 14. How long a seat at a table keeps a person's new chats private.",
+          "type": "number",
+          "minimum": 0
+        },
+        "leave_pattern": {
+          "description": "Regular expression (case-insensitive) a whole message must match to leave the table. Default: \"leave the table\" / \"quit the game\".",
+          "type": "string"
+        },
+        "standing": {
+          "description": "Where \"if I do not answer in 5 days, assume ...\" instructions are accepted from: private chats only (default) or any chat.",
+          "type": "string",
+          "enum": [
+            "private",
+            "any"
+          ]
+        },
+        "default_after": {
+          "description": "How long the game waits on a player who left no standing instruction before default_action happens. Omit to wait forever.",
+          "type": "object",
+          "properties": {
+            "real": {
+              "description": "Real (server) time, e.g. \"5d\".",
+              "type": "string"
+            },
+            "game": {
+              "description": "In-game time, in the clock's unit (or a duration when the clock has a time unit).",
+              "type": [
+                "string",
+                "number"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "default_action": {
+          "description": "What that player's character does then. Default \"says nothing\".",
+          "type": "string"
+        },
+        "judge": {
+          "description": "Default true: the judge model reads messages at a table of two or more (turn rule, stepping away, standing instructions). false: code only.",
+          "type": "boolean"
+        },
+        "gate": {
+          "description": "Old name: false means turns free.",
+          "type": "boolean"
+        },
+        "confirm_pattern": {
+          "description": "Policy ready: regular expression (case-insensitive) a whole message must match to count as ready. Default: ready, confirm, confirmed, done or go.",
+          "type": "string"
+        },
+        "reset_on_talk": {
+          "description": "Policy ready: default true. Saying something new after \"ready\" takes the ready back.",
+          "type": "boolean"
+        },
+        "min_players": {
+          "description": "Default 2. The turn policy only applies once this many people are at the table; with fewer, every message is a round.",
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "idle_minutes": {
+          "description": "Default 0 (wait for everyone). Players quiet for longer than this are not waited for.",
+          "type": "number",
+          "minimum": 0
+        },
+        "max_players": {
+          "description": "Default 8.",
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 50
+        }
+      },
+      "additionalProperties": false
+    },
+    "knowledge": {
+      "description": "Secrets and partial knowledge. Off unless enabled is true; needs multiplayer.",
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "description": "Default false. Facts only some people know (a goal, a hidden trait, something only some of them saw). Needs multiplayer: players record them in their private chat.",
+          "type": "boolean"
+        },
+        "confirm_facts": {
+          "description": "player (default): the player confirms a fact the judge structured before it is saved. off: it is saved at once.",
+          "type": "string",
+          "enum": [
+            "player",
+            "off"
+          ]
+        },
+        "match": {
+          "description": "How the server decides a knower speaks or is addressed this round. name (default): their name or actor id appears in the round. judge: the judge model reads the round (never sees the fact).",
+          "type": "string",
+          "enum": [
+            "name",
+            "judge"
+          ]
+        },
+        "triggers": {
+          "description": "Per-trigger `confirm` overrides these.",
+          "type": "object",
+          "properties": {
+            "action": {
+              "description": "Default none: an action trigger reveals the fact when the judge sees it (and the quote checks out). owner: the person it is about must confirm.",
+              "type": "string",
+              "enum": [
+                "owner",
+                "none"
+              ]
+            },
+            "statement": {
+              "description": "Default owner: a statement trigger waits for the person it is about to confirm in their own next lines. none: it reveals at once. A fact about an NPC cannot be confirmed by anyone and reveals at once.",
+              "type": "string",
+              "enum": [
+                "owner",
+                "none"
+              ]
+            },
+            "candidate_turns": {
+              "description": "Default 3. How many rounds a seen statement waits for confirmation.",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            }
+          },
+          "additionalProperties": false
+        },
+        "leak": {
+          "description": "The narrator can state a fact in a reply the whole table reads. retry (default): the reply is held (not streamed) when a fact was given to the narrator this round, scanned, rewritten once on a hit, then redacted. redact: scanned and redacted. audit: scanned after delivery and logged. off: no scan.",
+          "type": "string",
+          "enum": [
+            "off",
+            "audit",
+            "retry",
+            "redact"
+          ]
+        },
+        "notice": {
+          "description": "Default seen: when something is passed on in secret (a whisper, a look, a note), the narrator is told on the next round that the table saw it happen, never what it was, so it can narrate it. off: nothing is said.",
+          "type": "string",
+          "enum": [
+            "off",
+            "seen"
+          ]
+        },
+        "transfer": {
+          "description": "Default off. tell: a player can pass a fact on to named characters in their private chat (a whisper, a signal, a look); only the recipients then know it. covert: tell, and after each round the model lists what NPCs secretly pass to each other (one extra model call per round; needs two or more NPCs).",
+          "type": "string",
+          "enum": [
+            "off",
+            "tell",
+            "covert"
+          ]
+        },
+        "covert_max": {
+          "description": "Default 2. Most covert acts recorded per round.",
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "notes_view": {
+          "description": "Default true: a player can list and forget their own facts in their private chat.",
+          "type": "boolean"
+        },
+        "max_facts": {
+          "description": "Default 60.",
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 500
+        },
+        "max_chars": {
+          "description": "Default 1500. Most characters of facts put in one narrator prompt.",
+          "type": "integer",
+          "minimum": 200,
+          "maximum": 20000
+        },
+        "audit_keep": {
+          "description": "Default 200. Audit entries kept (ids and turns, never the text).",
+          "type": "integer",
+          "minimum": 20,
+          "maximum": 2000
+        },
+        "confirm_pattern": {
+          "description": "Whole message that confirms a pending fact. Default yes/y/save/confirm/ok.",
+          "type": "string"
+        },
+        "cancel_pattern": {
+          "description": "Whole message that drops a pending fact. Default no/n/cancel/discard.",
+          "type": "string"
+        },
+        "notes_pattern": {
+          "description": "Whole message that lists the player's own facts. Default notes/secrets.",
+          "type": "string"
+        },
+        "forget_pattern": {
+          "description": "Message `forget <id>` that removes the player's own fact (first group is the id). Default forget <id>.",
+          "type": "string"
+        },
+        "seed": {
+          "description": "Facts the game itself holds (an NPC's agenda, a role's goal).",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string"
+              },
+              "about": {
+                "type": "string",
+                "description": "An actor id."
+              },
+              "known_by": {
+                "description": "Actor ids or names of who in the story knows it.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "access": {
+                "description": "never: no model sees it until revealed. roleplaying: given to the narrator only when a knower speaks or is addressed. dm: kept as a note, never given to a model. Default roleplaying when known_by is set, else never.",
+                "type": "string",
+                "enum": [
+                  "never",
+                  "roleplaying",
+                  "dm"
+                ]
+              },
+              "watch": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "discover": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "action",
+                        "statement"
+                      ]
+                    },
+                    "when": {
+                      "type": "string"
+                    },
+                    "by": {
+                      "type": "string"
+                    },
+                    "confirm": {
+                      "type": "string",
+                      "enum": [
+                        "owner",
+                        "none"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "when"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "id",
+              "text",
+              "about"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "discord": {
+      "description": "How the Discord interface treats this game (modules/discord, docs/DISCORD.md). The proxy itself ignores it.",
+      "type": "object",
+      "properties": {
+        "scope": {
+          "description": "Who shares a conversation with the bot. user (default): every person has their own 1:1 conversation with it, even in a public channel. channel: the channel is one shared conversation (a table).",
+          "type": "string",
+          "enum": [
+            "user",
+            "channel"
+          ]
+        },
+        "merge_context": {
+          "description": "Background the bridge adds when a message points at other messages. mentions (default): the message being replied to, and the latest exchanges the bot had with people the message mentions. reply: only the message being replied to. off: none.",
+          "type": "string",
+          "enum": [
+            "mentions",
+            "reply",
+            "off"
+          ]
+        },
+        "history_limit": {
+          "description": "Default 200. How many channel messages the bridge reads to rebuild a conversation.",
+          "type": "integer",
+          "minimum": 20,
+          "maximum": 1000
+        }
+      },
+      "additionalProperties": false
+    },
+    "sync": {
+      "description": "Keeping the record in step with the conversation. The conversation is the truth; the saved state is a cache derived from it.",
+      "type": "object",
+      "properties": {
+        "mode": {
+          "description": "Default detect: remember a fingerprint of each turn and keep an audit log, but repair nothing. repair: when the conversation no longer matches the record (an earlier message was edited, turns were missed, or the record is gone), roll back and replay the turns through the extractor. off: neither.",
+          "type": "string",
+          "enum": [
+            "off",
+            "detect",
+            "repair"
+          ]
+        },
+        "replay_turns": {
+          "description": "Default 10. At most this many of the latest turns are replayed when the record is rebuilt; older ones keep the state before them.",
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 60
+        },
+        "batch": {
+          "description": "Default 4. Turns per extractor call when replaying.",
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 12
+        },
+        "similarity": {
+          "description": "Default 0.7. How much of a reply must still match its saved fingerprint (0 to 1) for an edited reply not to count as a change.",
+          "type": "number",
+          "minimum": 0.1,
+          "maximum": 1
+        },
+        "audit_keep": {
+          "description": "Default 200. Audit log entries kept with the session.",
+          "type": "integer",
+          "minimum": 20,
+          "maximum": 2000
+        }
+      },
+      "additionalProperties": false
+    },
+    "tools": {
+      "description": "Tools the narrator may call, each with its options: {\"tmdb\":{\"max_calls_per_turn\":4},\"fetch\":{\"hosts\":[\"api.example.com\"]}}. Every tool takes max_calls_per_turn (3), max_chars (6000) and timeout_ms (15000). Built in: fetch, web_search, tmdb, stock. Keys and endpoints go in tools.config.mjs, never here.",
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "propertyNames": {
+          "type": "string"
+        },
+        "additionalProperties": {}
+      }
+    },
+    "tool_rounds": {
+      "description": "Default 3. How many model-and-tool rounds one turn may take.",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 8
+    },
+    "field_access": {
+      "description": "Per field (\"game.<field>\" or an actor field): \"normal\" (default, same as not listed or null), \"read-only\" (ops cannot write it; its value can still be copied with an address) or \"write-only\" (ops can write it by path; its address can never be used in a value). A key covers what is inside the field and what contains it.",
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "string",
+            "enum": [
+              "normal",
+              "read-only",
+              "write-only"
+            ]
+          },
+          {
+            "type": "null"
+          }
+        ]
+      }
+    },
+    "decrease_locks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "while": {
+            "description": "Condition on another field; leave out to lock the field for good (it can never go down).",
+            "type": "object",
+            "properties": {
+              "field": {
+                "type": "string"
+              },
+              "gt": {
+                "type": "number"
+              },
+              "gte": {
+                "type": "number"
+              },
+              "lt": {
+                "type": "number"
+              },
+              "lte": {
+                "type": "number"
+              },
+              "eq": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "field"
+            ],
+            "additionalProperties": false
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "field"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "early_sync": {
+      "description": "Record what the player's message states while the narrator is still writing (one more extractor call per turn). Default false.",
+      "type": "boolean"
+    },
+    "reasoning": {
+      "type": "string",
+      "enum": [
+        "hide",
+        "show",
+        "off"
+      ]
+    },
+    "hide_state_echo": {
+      "type": "boolean"
+    },
+    "state_notes": {
+      "type": "boolean"
+    },
+    "field_words": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "items": false,
+          "minItems": 2,
+          "maxItems": 2
+        }
+      }
+    },
+    "game_turn": {
+      "description": "Game turns, separate from the chat round. The count is game.game_turn in the state (server-owned, rolled back with the state). Needs nothing else; default off.",
+      "type": "object",
+      "properties": {
+        "advance": {
+          "description": "Default round: every chat round is a game turn. field: a game turn passes when the numeric game field in `field` goes up. judged: the judge reads each round (public and private) and decides from `rule` whether a game turn has completed; it may also release a timed effect that ended in the story.",
+          "type": "string",
+          "enum": [
+            "round",
+            "field",
+            "judged"
+          ]
+        },
+        "field": {
+          "description": "advance field: the game field to watch, \"game.<name>\".",
+          "type": "string"
+        },
+        "rule": {
+          "description": "advance judged: when a game turn completes, in words. Example: \"One show round is the questions to every contestant and then Punishment Time; it completes when the Host has handed out the last punishment.\"",
+          "type": "string"
+        },
+        "word": {
+          "description": "What this game calls a game turn: turn (default), round, segment, quarter, game, match, or any short word. Used in what the narrator is told.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "link": {
+      "description": "Link one person's accounts (Open WebUI and Discord) so the game sees one player: /link prints a code, /link <code> in the other app joins them. Off unless this block exists.",
+      "type": "object",
+      "properties": {
+        "length": {
+          "description": "Characters in a link code (default 8). Letters O, I and L and the digits 0 and 1 are never used.",
+          "type": "integer",
+          "minimum": 4,
+          "maximum": 16
+        },
+        "style": {
+          "description": "chars (default): random letters and digits. words: three words from `words`, easier to remember.",
+          "type": "string",
+          "enum": [
+            "chars",
+            "words"
+          ]
+        },
+        "words": {
+          "description": "The word list for style words (at least 16 words, no hyphens).",
+          "minItems": 16,
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "ttl": {
+          "description": "How long a code works (default \"10m\"). Codes live only in memory: a restart or the clock loses them.",
+          "type": "string"
+        },
+        "max_fails": {
+          "description": "Wrong codes one person may try within the ttl (default 5).",
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50
+        },
+        "texts": {
+          "description": "Wording: code, dm_sent, linked, already, bad_code, locked, none_to_link. {code}, {minutes} and {name} are filled in.",
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "freeze": {
+      "description": "Freeze and unfreeze a character (someone is in the bathroom, or went to another app). Off unless this block exists. Frozen players are skipped by the turn policy of a multiplayer table.",
+      "type": "object",
+      "properties": {
+        "mode": {
+          "description": "What a frozen character is. skip (default): the table does not wait for them and the narrator leaves them out. npc: the narrator plays them as an NPC. inert: present in the scene but silent and still.",
+          "type": "string",
+          "enum": [
+            "skip",
+            "npc",
+            "inert"
+          ]
+        },
+        "catch_up": {
+          "description": "What a returning person learns. none (default): nothing is shown and the character does not know what happened. public: they are shown the narration since they froze (never whispers or private notes) and their character knows it.",
+          "type": "string",
+          "enum": [
+            "none",
+            "public"
+          ]
+        },
+        "catch_up_chars": {
+          "description": "Most characters of narration shown on return (default 1500, the newest).",
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 8000
+        },
+        "others": {
+          "description": "off (default): people freeze only themselves. anyone: /freeze <name> and /unfreeze <name> work on any character, players and NPCs.",
+          "type": "string",
+          "enum": [
+            "off",
+            "anyone"
+          ]
+        },
+        "text": {
+          "description": "What the narrator is told about a frozen character ({who} is their name). Default depends on mode.",
+          "type": "string"
+        },
+        "texts": {
+          "description": "Wording: frozen, unfrozen, you_are_frozen, nobody, not_allowed, unknown_who, solo, not_frozen, catch_up. {who} and {story} are filled in.",
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "images": {
+      "description": "Image generation from the chat (/draw, /portrait). Off unless this block exists.",
+      "type": "object",
+      "properties": {
+        "renderer": {
+          "type": "string",
+          "enum": [
+            "comfyui",
+            "a1111",
+            "openai",
+            "ollama"
+          ],
+          "description": "Which image backend to call. comfyui: an API-format workflow file (seeds and reference images). a1111: AUTOMATIC1111/Forge txt2img and img2img (seeds, negative prompt, reference). openai: any /v1/images/generations server such as Open WebUI's image engine (no seed). ollama: Ollama's experimental image models through the same endpoint (no seed; macOS first)."
+        },
+        "url": {
+          "description": "Base URL of the renderer. The env IMAGE_URL overrides it. Defaults: comfyui http://127.0.0.1:8188, a1111 http://127.0.0.1:7860, openai http://127.0.0.1:8080, ollama http://127.0.0.1:11434.",
+          "type": "string"
+        },
+        "workflow": {
+          "description": "comfyui: path (in the game folder) of a workflow exported with Save (API Format). Placeholders ${positive} ${negative} ${seed} ${width} ${height} ${steps} are filled in; a string that is exactly one placeholder keeps its number type.",
+          "type": "string"
+        },
+        "workflow_reference": {
+          "description": "comfyui: the workflow used when a reference image exists (img2img or IP-Adapter). It may also use ${reference}, the name of the uploaded image. Without it a reference is ignored.",
+          "type": "string"
+        },
+        "model": {
+          "description": "a1111: checkpoint name; openai/ollama: model name.",
+          "type": "string"
+        },
+        "size": {
+          "description": "Default 768x768.",
+          "type": "object",
+          "properties": {
+            "width": {
+              "type": "integer",
+              "minimum": 64,
+              "maximum": 4096
+            },
+            "height": {
+              "type": "integer",
+              "minimum": 64,
+              "maximum": 4096
+            }
+          },
+          "required": [
+            "width",
+            "height"
+          ],
+          "additionalProperties": false
+        },
+        "steps": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 150
+        },
+        "cfg": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 50
+        },
+        "sampler": {
+          "type": "string"
+        },
+        "strength": {
+          "description": "a1111 img2img denoising strength when a reference is used (default 0.6).",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "prompts": {
+          "description": "Fixed prompt parts. Every render is style + the scene the judge writes + positive; negative is sent as is.",
+          "type": "object",
+          "properties": {
+            "positive": {
+              "type": "string"
+            },
+            "negative": {
+              "type": "string"
+            },
+            "style": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "seeds": {
+          "description": "Seeds by actor id or name. An actor with no entry gets a random seed the first time it is drawn, and keeps it for the session.",
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "reference": {
+          "description": "default: a file in the game folder (or, with urls, an http(s) URL) used as the reference for every render. urls: allow players to pass a URL (default false). Only PNG, JPEG and WebP are used; SVG, PDF and anything else is refused.",
+          "type": "object",
+          "properties": {
+            "default": {
+              "type": "string"
+            },
+            "urls": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "ask": {
+          "description": "Let the judge notice a player asking for a picture and offer one (the player must still answer yes). words: only messages containing one of these are looked at (default: every message). offer: how the offer begins (default 'Make an image of').",
+          "type": "object",
+          "properties": {
+            "words": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "offer": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "process": {
+          "description": "A program the engine starts when it is not already answering (ready_url, default the renderer url). ${NAME} in command, args, env values and cwd is replaced from the engine's environment; a name that is not set stops the start. It is left running when the engine exits unless stop_on_exit is true.",
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string"
+            },
+            "args": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "env": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string"
+              },
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "cwd": {
+              "type": "string"
+            },
+            "venv": {
+              "description": "A Python virtual environment folder (${NAME} allowed). The program runs as if it were activated (VIRTUAL_ENV, its bin first on PATH; a bare python/pip is the venv's own). Implies stop_on_exit unless set to false.",
+              "type": "string"
+            },
+            "ready_url": {
+              "type": "string"
+            },
+            "stop_on_exit": {
+              "description": "Stop the program (and what it started) when this app is stopped. Default false, or true when venv is set.",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "command"
+          ],
+          "additionalProperties": false
+        },
+        "lease": {
+          "description": "Around a render the narrator model is unloaded from Ollama (keep_alive 0) and narrator calls wait; afterwards the renderer frees its VRAM. Both default true.",
+          "type": "object",
+          "properties": {
+            "unload_narrator": {
+              "type": "boolean"
+            },
+            "free_renderer": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "max_queue": {
+          "description": "Renders waiting behind the running one before new requests are refused (default 3).",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 50
+        },
+        "texts": {
+          "description": "Wording of the server's replies: busy, queue_full, failed, bad_format, unknown_who, no_game, caption, offer_confirm. {who} and {subject} are filled in.",
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "renderer"
+      ],
+      "additionalProperties": false
+    },
+    "turn_events": {
+      "description": "Things that happen on a game turn (needs game_turn). Ids default to ev1, ev2...",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "at": {
+            "description": "Fires the moment the game turn becomes this number.",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "every": {
+            "description": "Fires on every Nth game turn.",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "if": {
+            "description": "Only when this condition (as in exit_when; aggregates over the actors still in, e.g. top_count) is true on that turn. Not retried later.",
+            "$ref": "#/$defs/__schema0"
+          },
+          "text": {
+            "description": "Told to the narrator once, on the next round. With end: the closing instructions.",
+            "type": "string"
+          },
+          "set": {
+            "description": "State changes {\"game.phase\": \"sudden_death\"} through the usual checks (allowed values, protected fields).",
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {}
+          },
+          "end": {
+            "description": "Close the game: the narrator writes the finale from `text`, then the game is over (wrap_up.after_text / over_reply).",
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "wrap_up": {
+      "type": "object",
+      "properties": {
+        "turn_budget": {
+          "description": "Default hard: at_turn counts rounds whatever compaction does. after_compaction: at_turn and soon_turns are skipped once a recap exists (compaction is keeping the prompt small). The env CONTEXT_MAX_ROUNDS is always hard.",
+          "type": "string",
+          "enum": [
+            "hard",
+            "after_compaction"
+          ]
+        },
+        "at_tokens": {
+          "type": "number"
+        },
+        "at_turn": {
+          "type": "number"
+        },
+        "soon_turns": {
+          "type": "number"
+        },
+        "soon_text": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "after_text": {
+          "type": "string"
+        },
+        "over_reply": {
+          "type": "string"
+        },
+        "credits_file": {
+          "description": "A file in the game folder (e.g. CREDITS.md) added word for word after the narrator writes the finale. The narrator never sees or rewrites it.",
+          "type": "string"
+        },
+        "on_exit": {
+          "type": "string",
+          "enum": [
+            "user",
+            "all"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "alias_fields": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "tail_notices": {
+      "type": "boolean"
+    },
+    "enforce_rules": {
+      "type": "boolean"
+    },
+    "rule_audit_with": {
+      "type": "string",
+      "enum": [
+        "judge",
+        "main"
+      ]
+    },
+    "compaction": {
+      "type": "object",
+      "properties": {
+        "at_tokens": {
+          "type": "number"
+        },
+        "keep_turns": {
+          "type": "number"
+        },
+        "max_chars": {
+          "type": "number"
+        },
+        "verify": {
+          "type": "string",
+          "enum": [
+            "judge",
+            "fields"
+          ]
+        },
+        "verify_fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "at_tokens"
+      ],
+      "additionalProperties": false
+    },
+    "session_rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "locked": {
+            "type": "boolean"
+          },
+          "lift_hint": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "text"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "dice": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "type": "number"
+          }
+        }
+      ]
+    },
+    "user_id": {
+      "type": "string"
+    },
+    "npc_prefix": {
+      "type": "string"
+    },
+    "writable_fields": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "trigger_pattern": {
+      "type": "string"
+    },
+    "placeholder_patterns": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "prompts": {
+      "type": "object",
+      "properties": {
+        "extractor": {
+          "type": "string"
+        },
+        "setup": {
+          "type": "string"
+        },
+        "rule_judge": {
+          "type": "string"
+        },
+        "invocation": {
+          "type": "string"
+        },
+        "compactor": {
+          "type": "string"
+        },
+        "compaction_judge": {
+          "type": "string"
+        },
+        "compaction_extract": {
+          "type": "string"
+        },
+        "rule_audit": {
+          "type": "string"
+        },
+        "rule_confirm": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "invocation": {
+      "type": "string",
+      "enum": [
+        "judge",
+        "always"
+      ]
+    },
+    "setup_turns": {
+      "type": "number"
+    },
+    "setup_hint": {
+      "type": "string"
+    },
+    "judge_model": {
+      "type": "string"
+    },
+    "judge_api": {
+      "description": "How the judge model is called: \"ollama\" (native API, default) or \"openai\" (an OpenAI-compatible server such as llama.cpp's llama-server; set JUDGE_URL, or it shares the narrator's server). Hosted services are not allowed.",
+      "type": "string",
+      "enum": [
+        "ollama",
+        "openai"
+      ]
+    },
+    "judge_confirmations": {
+      "type": "number"
+    },
+    "judge_instance": {
+      "type": "object",
+      "properties": {
+        "host": {
+          "type": "string"
+        },
+        "port": {
+          "type": "number"
+        },
+        "num_ctx": {
+          "type": "number"
+        },
+        "gpu": {
+          "type": "boolean"
+        },
+        "models_dir": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "judge_num_ctx": {
+      "type": "number"
+    },
+    "judge_actor_fields": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "judge_history_items": {
+      "type": "number"
+    },
+    "judge_events": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "__schema0": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "logic": {
+              "type": "string",
+              "enum": [
+                "AND",
+                "OR",
+                "NOT"
+              ]
+            },
+            "conditions": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/__schema0"
+              }
+            },
+            "reason": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "logic",
+            "conditions"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "field": {
+              "type": "string",
+              "description": "Actor field; `game.<field>` reads a number from the shared game state."
+            },
+            "aggregate": {
+              "description": "Compare the average / minimum / maximum / sum of the field over the actors still in, instead of one actor. top_count: how many of them share the highest value (2 or more is a tie at the top).",
+              "type": "string",
+              "enum": [
+                "avg",
+                "min",
+                "max",
+                "sum",
+                "top_count"
+              ]
+            },
+            "share": {
+              "description": "exit_group_when only, without `aggregate`: fraction (0-1, default 1) of the actors still in that must meet the comparison.",
+              "type": "number"
+            },
+            "lt": {
+              "type": "number"
+            },
+            "lte": {
+              "type": "number"
+            },
+            "gt": {
+              "type": "number"
+            },
+            "gte": {
+              "type": "number"
+            },
+            "eq": {
+              "type": "number"
+            },
+            "reason": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "field"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "title": "config.json",
+  "description": "Settings of one game (schema_version 1)."
+}

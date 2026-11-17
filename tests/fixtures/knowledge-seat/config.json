@@ -1,0 +1,81 @@
+{
+  "model_id": "knowledge",
+  "invocation": "always",
+  "actor_template": {
+    "name": "",
+    "hp": null,
+    "statuses": [],
+    "inventory": [],
+    "history": []
+  },
+  "initial_state": {
+    "game": {
+      "location": "start",
+      "minutes": 0
+    },
+    "actors": {
+      "user": {
+        "name": "you",
+        "hp": 10,
+        "statuses": [],
+        "inventory": [],
+        "history": []
+      },
+      "npc_brother": {
+        "name": "Brother",
+        "hp": 10,
+        "statuses": [],
+        "inventory": [],
+        "history": [],
+        "controlled_by": "npc"
+      },
+      "npc_rosa": {
+        "name": "Rosa",
+        "hp": 10,
+        "statuses": [],
+        "inventory": [],
+        "history": [],
+        "controlled_by": "npc"
+      }
+    }
+  },
+  "state_rules": "Track hp.",
+  "limits": {
+    "hp": {
+      "min": 0,
+      "max": 10
+    }
+  },
+  "judge_model": "judge-model",
+  "setup_turns": 0,
+  "multiplayer": {
+    "enabled": true,
+    "turns": "free",
+    "min_players": 2,
+    "clock": {
+      "field": "game.minutes",
+      "unit": "minute"
+    },
+    "private": {
+      "unseated": "seat"
+    }
+  },
+  "knowledge": {
+    "enabled": true,
+    "seed": [
+      {
+        "id": "agenda",
+        "text": "The brother plans to sell the farm.",
+        "about": "npc_brother",
+        "known_by": [
+          "npc_brother"
+        ],
+        "access": "roleplaying",
+        "watch": [
+          "sell the farm"
+        ]
+      }
+    ],
+    "transfer": "covert"
+  }
+}

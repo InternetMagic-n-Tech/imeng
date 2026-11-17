@@ -1,0 +1,26 @@
+{
+  "judge_instance": { "gpu": true },
+  "model_id": "images",
+  "invocation": "always",
+  "actor_template": { "name": "", "description": "", "statuses": [], "history": [] },
+  "initial_state": {
+    "game": { "phase": "playing" },
+    "actors": {
+      "user": { "name": "Bea", "description": "a tall woman in a red coat", "statuses": [], "history": [] },
+      "npc_bo": { "name": "Bo", "description": "a short man with a beard", "statuses": [], "history": [], "controlled_by": "npc" }
+    }
+  },
+  "images": {
+    "renderer": "comfyui",
+    "url": "http://127.0.0.1:8188",
+    "workflow": "workflow.json",
+    "workflow_reference": "workflow-ref.json",
+    "size": { "width": 512, "height": 640 },
+    "steps": 12,
+    "prompts": { "positive": "highly detailed", "negative": "blurry, text", "style": "oil painting" },
+    "seeds": { "Bo": 4242 },
+    "reference": { "urls": false },
+    "ask": { "words": ["picture", "draw me"] },
+    "max_queue": 1
+  }
+}

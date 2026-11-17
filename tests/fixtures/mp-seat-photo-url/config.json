@@ -1,0 +1,81 @@
+{
+  "model_id": "mp-seat-photo-url",
+  "invocation": "always",
+  "actor_template": {
+    "name": "",
+    "hp": null,
+    "statuses": [],
+    "inventory": [],
+    "history": [],
+    "chips": 100,
+    "status": "in",
+    "age": 0,
+    "gender": "",
+    "sexuality": ""
+  },
+  "initial_state": {
+    "game": {
+      "location": "start",
+      "minutes": 0,
+      "big_blind": 10,
+      "hands_played": 0,
+      "phase": "between"
+    },
+    "actors": {
+      "user": {
+        "name": "you",
+        "hp": 10,
+        "statuses": [],
+        "inventory": [],
+        "history": [],
+        "chips": 100,
+        "status": "in"
+      }
+    }
+  },
+  "state_rules": "Track hp.",
+  "limits": {
+    "hp": {
+      "min": 0,
+      "max": 10
+    }
+  },
+  "judge_model": "judge-model",
+  "setup_turns": 0,
+  "multiplayer": {
+    "enabled": true,
+    "min_players": 2,
+    "clock": {
+      "field": "game.minutes",
+      "unit": "minute"
+    },
+    "silenced_reply": "The living do not hear you.",
+    "max_players": 3
+  },
+  "seating": {
+    "phases": [
+      "between"
+    ],
+    "min_age": 21,
+    "default_sexuality": "straight",
+    "genders": [
+      "female",
+      "male",
+      "nonbinary"
+    ],
+    "photo": {
+      "text_file": "seat-photo.md",
+      "keep_hours": 24,
+      "check": {
+        "url": "http://127.0.0.1:39871",
+        "threshold": 0.4,
+        "keypoint": 0.5,
+        "people": 1
+      }
+    },
+    "start": {
+      "auto": true,
+      "early": true
+    }
+  }
+}

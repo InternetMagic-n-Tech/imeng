@@ -1,0 +1,49 @@
+{
+  "model_id": "mp-idle",
+  "invocation": "always",
+  "actor_template": {
+    "name": "",
+    "hp": null,
+    "statuses": [],
+    "inventory": [],
+    "history": [],
+    "caught": false
+  },
+  "initial_state": {
+    "game": {
+      "location": "start",
+      "minutes": 0,
+      "idle_after": "3m"
+    },
+    "actors": {
+      "user": {
+        "name": "you",
+        "hp": 10,
+        "statuses": [],
+        "inventory": [],
+        "history": []
+      }
+    }
+  },
+  "state_rules": "Track hp.",
+  "limits": {
+    "hp": {
+      "min": 0,
+      "max": 10
+    }
+  },
+  "judge_model": "judge-model",
+  "setup_turns": 0,
+  "multiplayer": {
+    "enabled": true,
+    "min_players": 2,
+    "clock": {
+      "field": "game.minutes",
+      "unit": "minute"
+    },
+    "silenced_reply": "The living do not hear you.",
+    "idle_vote": {
+      "min_votes": 2
+    }
+  }
+}

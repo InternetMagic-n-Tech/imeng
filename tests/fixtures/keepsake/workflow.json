@@ -1,0 +1,7 @@
+{
+  "3": { "class_type": "KSampler", "inputs": { "seed": "${seed}", "steps": "${steps}", "cfg": "${cfg}" } },
+  "6": { "class_type": "CLIPTextEncode", "inputs": { "text": "${positive}" } },
+  "7": { "class_type": "CLIPTextEncode", "inputs": { "text": "${negative}" } },
+  "5": { "class_type": "EmptyLatentImage", "inputs": { "width": "${width}", "height": "${height}" } },
+  "9": { "class_type": "SaveImage", "inputs": { "filename_prefix": "game" } }
+}

@@ -1,0 +1,49 @@
+{
+  "actor_template": {
+    "name": "",
+    "score": 0,
+    "mood": "calm",
+    "secret": "",
+    "locked": 0,
+    "history": [],
+    "tags": []
+  },
+  "field_access": {
+    "secret": "write-only",
+    "locked": "read-only",
+    "game.phase": "read-only",
+    "game.hidden": "write-only",
+    "game.vault": "write-only",
+    "game.ledger": "read-only",
+    "game.mix.secret": "write-only",
+    "mood": "normal",
+    "score": null
+  },
+  "initial_state": {
+    "game": {
+      "phase": "intro",
+      "hidden": "h",
+      "target": null,
+      "vault": {
+        "code": "1234"
+      },
+      "ledger": {
+        "n": 1
+      },
+      "mix": {
+        "secret": "s",
+        "pub": "p"
+      }
+    },
+    "actors": {
+      "user": {
+        "name": "you",
+        "score": 3,
+        "mood": "calm",
+        "secret": "s3",
+        "locked": 7,
+        "tags": []
+      }
+    }
+  }
+}

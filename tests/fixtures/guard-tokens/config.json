@@ -1,0 +1,1 @@
+{ "reasoning": "show", "judge_instance": { "gpu": true }, "too_long_reply": "Too much text! Shorten it.", "actor_history_limit": 3, "history_limit": 9 }

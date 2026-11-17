@@ -1,0 +1,79 @@
+{
+  "model_id": "forfeit",
+  "invocation": "always",
+  "judge_instance": {
+    "gpu": true
+  },
+  "actor_template": {
+    "name": "",
+    "score": 0,
+    "statuses": [],
+    "history": [],
+    "description": "",
+    "outfit": "",
+    "age": null,
+    "role": "contestant",
+    "relationship": "single",
+    "stain": 0,
+    "ground_rules": []
+  },
+  "initial_state": {
+    "game": {
+      "phase": "playing"
+    },
+    "actors": {
+      "user": {
+        "name": "Bea",
+        "score": 0,
+        "statuses": [],
+        "history": [],
+        "controlled_by": "user",
+        "role": "contestant",
+        "description": "",
+        "outfit": "",
+        "age": 30,
+        "relationship": "single"
+      },
+      "npc_bo": {
+        "name": "Bo",
+        "score": 0,
+        "statuses": [],
+        "history": [],
+        "controlled_by": "npc",
+        "role": "contestant",
+        "relationship": "single",
+        "age": 30
+      }
+    }
+  },
+  "writable_fields": [
+    "name",
+    "score",
+    "statuses",
+    "history",
+    "description",
+    "outfit",
+    "age",
+    "role",
+    "relationship",
+    "stain",
+    "ground_rules"
+  ],
+  "role_field": "role",
+  "enforce_rules": false,
+  "forfeit": {
+    "chance": 0.5,
+    "rounds": 2,
+    "if": {
+      "field": "ground_rules",
+      "present": false
+    },
+    "text": "{name} owes a picture.",
+    "done": "{name} paid.",
+    "missed": "{name} missed.",
+    "penalty": {
+      "field": "stain",
+      "add": 1
+    }
+  }
+}

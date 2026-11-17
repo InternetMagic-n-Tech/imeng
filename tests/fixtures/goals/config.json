@@ -1,0 +1,24 @@
+{
+  "model_id": "goals",
+  "invocation": "always",
+  "judge_instance": { "gpu": true },
+  "state_notes": true,
+  "actor_template": { "name": "", "score": 0, "statuses": [], "history": [] },
+  "initial_state": {
+    "game": { "phase": "registration" },
+    "actors": {
+      "user": { "name": "Bea", "score": 0, "statuses": [], "history": [], "controlled_by": "user" },
+      "npc_bo": { "name": "Bo", "score": 0, "statuses": [], "history": [], "controlled_by": "npc", "description": "a loud quiz show regular" }
+    }
+  },
+  "writable_fields": ["name", "score", "statuses", "history"],
+  "allowed_values": { "game.phase": ["registration", "playing"] },
+  "calculated": { "leader": { "argmax": "actors.*.goals_done" } },
+  "phases": {
+    "start": "registration",
+    "registration": { "note": "Ask what each contestant secretly wants.", "require": [{ "field": "goals_set", "gte": 1, "reason": "every contestant needs a goal" }], "next": "playing" },
+    "playing": {}
+  },
+  "wrap_up": { "at_turn": 5, "over_reply": "The show is over." },
+  "goals": { "device": "the Notebook", "min": 1, "max": 2, "host": "own", "reward": "points", "points": 2, "capture_phase": "registration", "npc": "invent", "npc_after": 2, "theme": "a messy TV game show" }
+}
